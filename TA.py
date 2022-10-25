@@ -3,7 +3,8 @@ import numpy as np
 #Thomas Algorithm
 def T_alg(A,b,x):
     """Solves a tridiagonal system using the Thomas Algorithm"""
-    for i in range(1,A.shape[0]):
+    N = A.shape[0]
+    for i in range(1,N):
         w = A[i,i-1] / A[i-1,i-1]
         A[i,:] = A[i,:] - A[i-1,:] * w
         b[i] = b[i] - b[i-1] * w
@@ -13,5 +14,3 @@ def T_alg(A,b,x):
         else:
             x[i] = (b[i] - A[i,i+1] * x[i+1]) / A[i,i]
     return x
-
-
