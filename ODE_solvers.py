@@ -10,9 +10,19 @@ def Backward_Euler(func,y0,t0,tf,tolerance,delta):
         m = ((yf + delta - y0 - delta_t * func(yf + delta,tf)) - (yf - y0 - delta_t * func(yf,tf))) / delta
         yf = yf - (yf - y0 - delta_t * func(yf,tf)) / m
         residual = yf - y0 - delta_t * func(yf,tf)
-        print(residual)
     return yf
 
+def Crank_Nicolson(func,y0,t0,tf,tolerance,delta):
+    """Calculate the solution of func(y,t) at tf with initial condition y0 at t0"""
+    delta_t = tf - t0
+    yf = y0
+    residual = yf - y0 - 0.5 * delta_t * (func(y0,t0) + func(yf,tf))
+    while np.absolute(residual) > tolerance:
+        
+        m = ((yf + delta - y0 - 0.5 * delta_t * (func(y0,t0) + func(yf + delta,tf))) - (yf - y0 - 0.5 * delta_t * (func(y0,t0) + func(yf,tf)))) / delta
+        yf = yf - (yf - y0 - 0.5 * delta_t * (func(y0,t0) + func(yf,tf))) / m
+        residual = yf - y0 - 0.5 * delta_t * (func(y0,t0) + func(yf,tf))
+    return yf
 
 def RK45(func,y0,t0,tf,tolerance):
     """Calculate the solution of func(y,t) at tf with initial condition y0 at t0"""
@@ -33,7 +43,6 @@ def RK45(func,y0,t0,tf,tolerance):
         else:
             k[i] = delta_t * func(y0 + (np.sum(a[i,:] * k[:])),t0 + c[i] * delta_t)
     TE = np.abs(np.sum(k * d))
-    print(TE)
     if tolerance <= TE:
         delta_t = 0.9 * delta_t * (tolerance / TE) ** (1/5)
         tf = t0 + delta_t
@@ -44,3 +53,8 @@ def RK45(func,y0,t0,tf,tolerance):
                 k[i] = delta_t * func(y0 + (np.sum(a[i,:] * k[:])),t0 + c[i] * delta_t)
     yf = y0 + np.sum(b5 * k)
     return yf, tf
+
+def test(y,t):
+    return -y
+
+print(Backward_Euler(test,1,0,0.3,0.0001,0.00001))
