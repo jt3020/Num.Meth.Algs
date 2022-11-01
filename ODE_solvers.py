@@ -54,7 +54,26 @@ def RK45(func,y0,t0,tf,tolerance):
     yf = y0 + np.sum(b5 * k)
     return yf, tf
 
+def A_B_M(func,y0,t0,tf):
+    """Calculate the solution of func(y,t) at tf with initial condition y0 at t0"""
+    delta_t = tf - t0
+    t1 = t0 + delta_t / 4
+    t2 = t0 + 2 * delta_t / 4
+    t3 = t0 + 3 * delta_t / 4
+    f0 = func(y0,t0)
+    y1 = y0 + (delta_t / 4) * f0
+    f1 = func(y1,t1)
+    y2 = y1 + (delta_t / 4) * f1
+    f2 = func(y2,t2)
+    y3 = y2 + (delta_t / 4) * f2
+    f3 = func(y3,t3)
+    temp_x = y3 + (1 / 24) * delta_t * (-9 * f0 + 37 * f1 - 59 * f2 + 55 * f3)
+    temp_f = func(temp_x,tf)
+    yf = y3 + (1 / 24) * delta_t * (f1 - 5 * f2 + 19 * f3 + 9 * temp_f)
+    return yf
+    
+
 def test(y,t):
     return -y
 
-print(Backward_Euler(test,1,0,0.3,0.0001,0.00001))
+print(A_B_M(test,1,0,0.01))
