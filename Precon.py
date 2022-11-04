@@ -26,12 +26,21 @@ def SSOR(A,P):
     P = np.transpose(D+L)
     P = np.matmul(np.invert(D),P)
     P = np.matmul(D+L,P)
+    return(np.array(P))
 
 # ILU
 def ILU(A,P):
     n = len(A)
-    L = np.zeros((n,n))
-    U = np.zeros((n,n)) 
+    P = np.zeros((n,n))
+
+    for k in range(n-1):
+        for i in range(k+1,n):
+            if P[i,k] == 0.0:
+                P[i,k] = P[i,k]/P[k,k]
+                for j in range(k+1,n):
+                    if P[i,j] == 0.0:
+                        P[i,j] = P[i,j] - P[i,k]*P[k,j]
+    return(np.array(P))
 
 n = 5
 x = np.ones(n)
