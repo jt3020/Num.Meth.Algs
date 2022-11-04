@@ -10,7 +10,7 @@ def Backward_Euler(func,y0,t0,tf,tolerance,delta):
         m = ((yf + delta - y0 - delta_t * func(yf + delta,tf)) - (yf - y0 - delta_t * func(yf,tf))) / delta
         yf = yf - (yf - y0 - delta_t * func(yf,tf)) / m
         residual = yf - y0 - delta_t * func(yf,tf)
-    return yf
+    return yf, tf
 
 def Crank_Nicolson(func,y0,t0,tf,tolerance,delta):
     """Calculate the solution of func(y,t) at tf with initial condition y0 at t0"""
@@ -22,7 +22,7 @@ def Crank_Nicolson(func,y0,t0,tf,tolerance,delta):
         m = ((yf + delta - y0 - 0.5 * delta_t * (func(y0,t0) + func(yf + delta,tf))) - (yf - y0 - 0.5 * delta_t * (func(y0,t0) + func(yf,tf)))) / delta
         yf = yf - (yf - y0 - 0.5 * delta_t * (func(y0,t0) + func(yf,tf))) / m
         residual = yf - y0 - 0.5 * delta_t * (func(y0,t0) + func(yf,tf))
-    return yf
+    return yf, tf
 
 def RK45(func,y0,t0,tf,tolerance):
     """Calculate the solution of func(y,t) at tf with initial condition y0 at t0"""
@@ -70,10 +70,6 @@ def A_B_M(func,y0,t0,tf):
     temp_x = y3 + (1 / 24) * delta_t * (-9 * f0 + 37 * f1 - 59 * f2 + 55 * f3)
     temp_f = func(temp_x,tf)
     yf = y3 + (1 / 24) * delta_t * (f1 - 5 * f2 + 19 * f3 + 9 * temp_f)
-    return yf
+    return yf, tf
     
-
-def test(y,t):
-    return -y
-
-print(A_B_M(test,1,0,0.01))
+ 
