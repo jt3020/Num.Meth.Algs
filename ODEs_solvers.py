@@ -28,6 +28,8 @@ def Crank_Nicolson(func,y0,t0,tf,tolerance,delta):
 
 def RK45(func,y0,t0,tf,tolerance):
     """Calculate the solution of func(y,t) at tf with initial condition y0 at t0"""
+    Neqn = np.size(y0)
+    yf = np.zeros_like(y0)
     delta_t = tf - t0
     a = np.array([[0,0,0,0,0,0],
                   [1/4,0,0,0,0,0],
@@ -39,39 +41,44 @@ def RK45(func,y0,t0,tf,tolerance):
     c = np.array([0,1/4,3/8,12/13,1,1/2])
     d = np.array([1/360,0,-128/4275,-2197/75240,1/50,2/55])
     k = np.zeros_like(c)
-    for i in range(6):
-        if i == 0:
-            k[i] = delta_t * func(y0,t0)
-        else:
-            k[i] = delta_t * func(y0 + (np.sum(a[i,:] * k[:])),t0 + c[i] * delta_t)
-    TE = np.abs(np.sum(k * d))
-    if tolerance <= TE:
-        delta_t = 0.9 * delta_t * (tolerance / TE) ** (1/5)
-        tf = t0 + delta_t
-        for i in range(6):
-            if i == 0:
-                k[i] = delta_t * func(y0,t0)
+    min_t_step = delta_t
+    for i in range(Neqn):
+        for j in range(6):
+            if j == 0:
+                k[j] = delta_t * func(y0,t0)[i]
             else:
-                k[i] = delta_t * func(y0 + (np.sum(a[i,:] * k[:])),t0 + c[i] * delta_t)
-    yf = y0 + np.sum(b5 * k)
+                k[j] = delta_t * func(y0 + (np.sum(a[j,:] * k[:])),t0 + c[j] * delta_t)[i]
+        TE = np.abs(np.sum(k * d))
+        if tolerance <= TE:
+            delta_t_new = 0.9 * delta_t * (tolerance / TE) ** (1/5)
+            if min_t_step > delta_t_new:
+                min_t_step = delta_t_new
+    tf = t0 + min_t_step
+    for i in range(Neqn):
+        for j in range(6):
+            if j == 0:
+                k[j] = delta_t * func(y0,t0)[i]
+            else:
+                k[j] = delta_t * func(y0 + (np.sum(a[j,:] * k[:])),t0 + c[j] * min_t_step)[i]
+        yf[i] = y0[i] + np.sum(b5 * k)
     return yf, tf
 
 def A_B_M(func,y0,t0,tf):
     """Calculate the solution of func(y,t) at tf with initial condition y0 at t0"""
-    delta_t = tf - t0
+    delta_t = tf - t0  
     t1 = t0 + delta_t / 4
     t2 = t0 + 2 * delta_t / 4
     t3 = t0 + 3 * delta_t / 4
     f0 = func(y0,t0)
-    y1 = y0 + (delta_t / 4) * f0
+    y1 = Crank_Nicolson(func,y0,t0,t1,0.0001,0.0001)[0]
     f1 = func(y1,t1)
-    y2 = y1 + (delta_t / 4) * f1
+    y2 = Crank_Nicolson(func,y1,t1,t2,0.0001,0.0001)[0]
     f2 = func(y2,t2)
-    y3 = y2 + (delta_t / 4) * f2
+    y3 = Crank_Nicolson(func,y2,t2,t3,0.0001,0.0001)[0]
     f3 = func(y3,t3)
-    temp_x = y3 + (1 / 24) * delta_t * (-9 * f0 + 37 * f1 - 59 * f2 + 55 * f3)
+    temp_x = y3 + (1 / 24) * (delta_t / 4) * (-9 * f0 + 37 * f1 - 59 * f2 + 55 * f3)
     temp_f = func(temp_x,tf)
-    yf = y3 + (1 / 24) * delta_t * (f1 - 5 * f2 + 19 * f3 + 9 * temp_f)
+    yf = y3 + (1 / 24) * (delta_t / 4) * (f1 - 5 * f2 + 19 * f3 + 9 * temp_f)
     return yf, tf
     
  
