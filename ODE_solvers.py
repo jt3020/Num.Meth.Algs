@@ -61,15 +61,15 @@ def A_B_M(func,y0,t0,tf):
     t2 = t0 + 2 * delta_t / 4
     t3 = t0 + 3 * delta_t / 4
     f0 = func(y0,t0)
-    y1 = y0 + (delta_t / 4) * f0
+    y1 = Crank_Nicolson(func,y0,t0,t1,0.0001,0.0001)[0]
     f1 = func(y1,t1)
-    y2 = y1 + (delta_t / 4) * f1
+    y2 = Crank_Nicolson(func,y1,t1,t2,0.0001,0.0001)[0]
     f2 = func(y2,t2)
-    y3 = y2 + (delta_t / 4) * f2
+    y3 = Crank_Nicolson(func,y2,t2,t3,0.0001,0.0001)[0]
     f3 = func(y3,t3)
-    temp_x = y3 + (1 / 24) * delta_t * (-9 * f0 + 37 * f1 - 59 * f2 + 55 * f3)
+    temp_x = y3 + (1 / 24) * (delta_t / 4) * (-9 * f0 + 37 * f1 - 59 * f2 + 55 * f3)
     temp_f = func(temp_x,tf)
-    yf = y3 + (1 / 24) * delta_t * (f1 - 5 * f2 + 19 * f3 + 9 * temp_f)
+    yf = y3 + (1 / 24) * (delta_t / 4) * (f1 - 5 * f2 + 19 * f3 + 9 * temp_f)
     return yf, tf
     
  
