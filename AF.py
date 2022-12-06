@@ -41,23 +41,25 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
         ValidElement = False
         while ValidElement == False:
             NS=0 # 9
-            for I in range(1,NB):
+            for I in range(1,NB): ## Loop 11
                 IA = MA[I]
                 IB = MB[I]
                 if (DPL(X[IA],Y[IA],X[IB],Y[IB],XC,YC) > RR): continue
                 NS = NS+1
                 MS[NS] = IA
                 MT[NS] = IB
+                # 11 Continue
 
             # DETERMINE CANDIDATE NODES ON THE GENERATION FRONT
-            for I in range(1,NS):
+            for I in range(1,NS): # 22 Loop
                 J = MS[I]
                 P = X[J]
                 Q = Y[J]
                 if ((P-XC)**2+(Q-YC)**2 > RR or A*P+B*Q < C): continue
-                if CHKINT(J1,J2,J,X1,Y1,X2,Y2,P,Q,NS,MS,MT,X,Y): 
+                if CHKINT(J1,J2,J,X1,Y1,X2,Y2,P,Q,NS,MS,MT,X,Y): # Effectively continue if returns False
                     CIRCLE(X1,Y1,X2,Y2,P,Q,XC,YC,RR)
                     J3=J
+                # 22 Continue
             
             if (J3 == 0):
                 H = np.sqrt(RR-TOR-DD/4)
@@ -80,8 +82,8 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
             S2 = S2 + 1/S # 44 Continue
             F = np.sqrt(0.75*S1/(S2*DD))
             F1 = F
-            for I in range(1,5): 
-                F1 = (2*F1**3 + 3*F)/(3*F1*F1 + 2.25)
+            for I in range(1,5): # 111 for loop
+                F1 = (2*F1**3 + 3*F)/(3*F1*F1 + 2.25) # 111
             S = F*DD/AREA
             if (S > 1): S = 1/S
             BETA = S*(2-S)*ALPHA
@@ -112,7 +114,7 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
                     break  # !!!!!!!!!!!!!!!!!!!1 GOTO 3 - This allows you to skip the GOTO 5 flag 
                 # 66 Continue
 
-            if ExitLoop: break
+            if ExitLoop and GAMMA >= BETA: break
             # 1
             II = 3*NE
 
@@ -126,6 +128,7 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
                 YC = YC + YC-YM
                 RR = (XC - X1)**2 + (YC - Y1)**2 + TOR
                 # GOTO 9 
+                ValidElement = False
                 
             else:
                 # NODE J3 IS FOUND TO FORM VALID ELEMENT WITH BASE SEGMENT J1-J2 - 
@@ -154,7 +157,7 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
             for I in range(1,NB): # Position 7, Loop 88
                 if (MA[I] != J2 or MB[I] != J3): continue # GOTO 88
                 if (NB == 1): 
-                    print('*** Mesh generation failed! ***')
+                    print('*** Mesh generation succeeded! ***')
                     return
                 MA[I] = MA[NB]
                 MB[I] = MB[NB]
@@ -184,7 +187,7 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
         NB=NB+1
         MA[NB]=NN
         MB[NB]=J2
-        # GOTO 5 ################# 5
+        break # GOTO 5 ################# 5
     # End of Log5 Loop
     # End of subroutine
 
