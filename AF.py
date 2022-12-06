@@ -7,25 +7,25 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
 
     # COMPUTE THE LENGTHS OF THE BOUNDARY SEGMENTS AND THEIR MID-POINTS
     NP = NB
-    for I in range(1,NB):
-        IA = MA[I]
-        IB = MB[I]
-        XP[I] = (X[IA] + X[IB])/2
-        YP[I] = (Y[IA] + Y[IB])/2
-        DP[I] = (X[IB] - X[IA])**2 + (Y[IB] - Y[IA])**2
+    for I in range(1,NB+1):
+        IA = MA[I-1]
+        IB = MB[I-1]
+        XP[I-1] = (X[IA-1] + X[IB-1])/2
+        YP[I-1] = (Y[IA-1] + Y[IB-1])/2
+        DP[I-1] = (X[IB-1] - X[IA-1])**2 + (Y[IB-1] - Y[IA-1])**2
 
     # PREPARATION WORKS FOR THE BASE SEGMENT, J1 - J2 = LAST SEGMENT ON THE FRONT
     LoopBreak = False
     while LoopBreak == False:
         ExitLoop = False 
         J3 = 0 # 5
-        J1 = MA[NB]
-        J2 = MB[NB]
+        J1 = MA[NB-1]
+        J2 = MB[NB-1]
         NB = NB-1
-        X1 = X[J1]
-        Y1 = Y[J1]
-        X2 = X[J2]
-        Y2 = Y[J2]
+        X1 = X[J1-1]
+        Y1 = Y[J1-1]
+        X2 = X[J2-1]
+        Y2 = Y[J2-1]
         A = Y1 - Y2
         B = X2 - X1
         DD = A*A + B*B
@@ -41,20 +41,20 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
         ValidElement = False
         while ValidElement == False:
             NS=0 # 9
-            for I in range(1,NB): ## Loop 11
-                IA = MA[I]
-                IB = MB[I]
-                if (DPL(X[IA],Y[IA],X[IB],Y[IB],XC,YC) > RR): continue
+            for I in range(1,NB+1): ## Loop 11
+                IA = MA[I-1]
+                IB = MB[I-1]
+                if (DPL(X[IA-1],Y[IA-1],X[IB-1],Y[IB-1],XC,YC) > RR): continue
                 NS = NS+1
-                MS[NS] = IA
-                MT[NS] = IB
+                MS[NS-1] = IA
+                MT[NS-1] = IB
                 # 11 Continue
 
             # DETERMINE CANDIDATE NODES ON THE GENERATION FRONT
-            for I in range(1,NS): # 22 Loop
-                J = MS[I]
-                P = X[J]
-                Q = Y[J]
+            for I in range(1,NS+1): # 22 Loop
+                J = MS[I-1]
+                P = X[J-1]
+                Q = Y[J-1]
                 if ((P-XC)**2+(Q-YC)**2 > RR or A*P+B*Q < C): continue
                 if CHKINT(J1,J2,J,X1,Y1,X2,Y2,P,Q,NS,MS,MT,X,Y): # Effectively continue if returns False
                     CIRCLE(X1,Y1,X2,Y2,P,Q,XC,YC,RR)
@@ -67,8 +67,8 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
                 AREA = np.sqrt(DD) * (R+H)
                 ALPHA = AREA/((R+H)**2 + 0.75*DD)
             else:
-                AREA = A*X[J3] + B*Y[J3] + X1*Y2 - X2*Y1
-                S = DD + (X[J3] - X1)**2 + (Y[J3] - Y1)**2 + (X[J3] - X2)**2 + (Y[J3] - Y2)**2
+                AREA = A*X[J3-1] + B*Y[J3-1] + X1*Y2 - X2*Y1
+                S = DD + (X[J3-1] - X1)**2 + (Y[J3-1] - Y1)**2 + (X[J3-1] - X2)**2 + (Y[J3-1] - Y2)**2
                 ALPHA = np.sqrt(12.0)*AREA/S
             
             # CREATE INTERIOR NODES, CHECK THEIR QUALITIES AND COMPARE WITH FRONTAL NODE J3    
@@ -76,20 +76,20 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
             YY = YM + B/2
             S1 = 0
             S2 = 0
-            for I in range(1,NP): # 44 for loop
-                S = (XP[I] - XX)**2 + (YP[I] - YY)**2 + TOR
-                S1 = S1 + DP[I]/S
+            for I in range(1,NP+1): # 44 for loop
+                S = (XP[I-1] - XX)**2 + (YP[I-1] - YY)**2 + TOR
+                S1 = S1 + DP[I-1]/S
             S2 = S2 + 1/S # 44 Continue
             F = np.sqrt(0.75*S1/(S2*DD))
             F1 = F
-            for I in range(1,5): # 111 for loop
+            for I in range(1,5+1): # 111 for loop
                 F1 = (2*F1**3 + 3*F)/(3*F1*F1 + 2.25) # 111
             S = F*DD/AREA
             if (S > 1): S = 1/S
             BETA = S*(2-S)*ALPHA
             T = 1/ALPHA - np.sqrt(abs(1/ALPHA**2 - 1))
 
-            for I in range(1,9): # 66 for loop
+            for I in range(1,9+1): # 66 for loop
                 S = (11-I) * F1/10
                 GAMMA = np.sqrt(3.0)*S*S*(2-S/F)/(S*S*F+0.75*F)
                 if (GAMMA < BETA): break # GOTO 1
@@ -100,14 +100,14 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
 
                 if CHKINT(J1,J2,0,X1,Y1,X2,Y2,P,Q,NS,MS,MT,X,Y) == False: continue # GOTO 66
 
-                D = (X(MT[1]) - X(MS[1]))**2 + (Y(MT[1]) - Y(MS[1]))**2
-                H = DPL(X(MS[1]),Y(MS[1]),X(MT[1]),Y(MT[1]),P,Q)
+                D = (X(MT[0]) - X(MS[0]))**2 + (Y(MT[0]) - Y(MS[0]))**2
+                H = DPL(X(MS[0]),Y(MS[0]),X(MT[0]),Y(MT[0]),P,Q)
 
-                for J in range(2,NS): # 99 for loop
-                    S = DPL(X(MS[J]),Y(MS[J]),X(MT[J]),Y(MT[J]),P,Q)
+                for J in range(2,NS+1): # 99 for loop
+                    S = DPL(X(MS[J-1]),Y(MS[J-1]),X(MT[J-1]),Y(MT[J-1]),P,Q)
                     if (S >= H): continue # GOTO 99
                     H = S
-                    D = (X(MT[J])-X(MS[J]))**2 + (Y(MT[J])-Y(MS[J]))**2
+                    D = (X(MT[J-1])-X(MS[J-1]))**2 + (Y(MT[J-1])-Y(MS[J-1]))**2
                 # 99 Continue
                 if (H > D*T**2):
                     ExitLoop = True 
@@ -138,55 +138,55 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
             # UPDATE GENERATION FRONT WITH FRONTAL NODE J3
             # 2
             NE = NE+1
-            ME[II+1] = J1
-            ME[II+2] = J2
-            ME[II+3] = J3
+            ME[II+0] = J1
+            ME[II+1] = J2
+            ME[II+2] = J3
             FrontUpdate = True
-            for I in range(1,NB):
+            for I in range(1,NB+1):
                 if (MA[I] != J3 or MB[I] != J1): continue
-                MA[I] = MA[NB]
-                MB[I] = MB[NB]
+                MA[I-1] = MA[NB-1]
+                MB[I-1] = MB[NB-1]
                 NB = NB-1
                 # GOTO 7
                 if I == NB: FrontUpdate = False
             # 77 Continue
             if FrontUpdate == True:
                 NB = NB + 1
-                MA[NB] = J1
-                MB[NB] = J3
-            for I in range(1,NB): # Position 7, Loop 88
-                if (MA[I] != J2 or MB[I] != J3): continue # GOTO 88
+                MA[NB-1] = J1
+                MB[NB-1] = J3
+            for I in range(1,NB+1): # Position 7, Loop 88
+                if (MA[I-1] != J2 or MB[I-1] != J3): continue # GOTO 88
                 if (NB == 1): 
                     print('*** Mesh generation succeeded! ***')
                     return
-                MA[I] = MA[NB]
-                MB[I] = MB[NB]
+                MA[I-1] = MA[NB-1]
+                MB[I-1] = MB[NB-1]
                 NB = NB-1
                 LoopBreak = True # GOTO 5 ################## 5
 
             if LoopBreak: LoopBreak = False; break
             # 88 
             NB = NB+1
-            MA[NB] = J3
-            MB[NB] = J2
+            MA[NB-1] = J3
+            MB[NB-1] = J2
             break # GOTO 5 ######################### 5
 
         # INTERIOR NODE NN CREATED, UPDATE GENERATION FRONT WITH INTERIOR NODE NN
         # 3 
         NN=NN+1
-        X[NN]=P
-        Y[NN]=Q
+        X[NN-1]=P
+        Y[NN-1]=Q
         II=3*NE
         NE=NE+1
-        ME[II+1] = J1
-        ME[II+2] = J2
-        ME[II+3] = NN
+        ME[II+0] = J1
+        ME[II+1] = J2
+        ME[II+2] = NN
         NB=NB+1
-        MA[NB]=J1
-        MB[NB]=NN
+        MA[NB-1]=J1
+        MB[NB-1]=NN
         NB=NB+1
-        MA[NB]=NN
-        MB[NB]=J2
+        MA[NB-1]=NN
+        MB[NB-1]=J2
         break # GOTO 5 ################# 5
     # End of Log5 Loop
     # End of subroutine
