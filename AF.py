@@ -23,8 +23,7 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
         YP[I] = (Y[IA] + Y[IB])/2
         DP[I] = (X[IB] - X[IA])**2 + (Y[IB] - Y[IA])**2
 
-    # Debugging performed up to here
-    breakpoint()
+    # Logic of code checked up to here
 
     # PREPARATION WORKS FOR THE BASE SEGMENT, J1 - J2 = LAST SEGMENT ON THE FRONT
     LoopBreak = False
@@ -34,10 +33,10 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
         J1 = MA[NB-1]
         J2 = MB[NB-1]
         NB = NB-1
-        X1 = X[J1-1]
-        Y1 = Y[J1-1]
-        X2 = X[J2-1]
-        Y2 = Y[J2-1]
+        X1 = X[J1]
+        Y1 = Y[J1]
+        X2 = X[J2]
+        Y2 = Y[J2]
         A = Y1 - Y2
         B = X2 - X1
         DD = A*A + B*B
@@ -45,22 +44,26 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
         XM = (X1 + X2)/2
         YM = (Y1 + Y2)/2
         RR = 1.25*DD + TOR
-        XC = XM + A
+        XC = XM + A # ?
         YC = YM + B
         C = X2*Y1 - X1*Y2 + TOR
+
+        # Debugging performed up to here
 
         # FILTER OFF SEGMENTS TOO FAR AWAY FROM THE BASE SEGMENT
         ValidElement = False
         while ValidElement == False:
-            NS=0 # 9
-            for I in range(1,NB+1): ## Loop 11
-                IA = MA[I-1]
-                IB = MB[I-1]
-                if (DPL(X[IA-1],Y[IA-1],X[IB-1],Y[IB-1],XC,YC) > RR): continue
-                NS = NS+1
-                MS[NS-1] = IA
-                MT[NS-1] = IB
+            NS = -1 # 9
+            for I in range(NB): ## Loop 11
+                IA = MA[I]
+                IB = MB[I]
+                if (DPL(X[IA],Y[IA],X[IB],Y[IB],XC,YC) > RR): continue
+                NS = NS + 1
+                MS[NS] = IA
+                MT[NS] = IB
                 # 11 Continue
+
+            # Debugging performed up to here (DPL not checked)
 
             # DETERMINE CANDIDATE NODES ON THE GENERATION FRONT
             for I in range(1,NS+1): # 22 Loop
@@ -211,27 +214,17 @@ def DPL(X1,Y1,X2,Y2,X3,Y3):
     R = (X2-X1)**2 + (Y2-Y1)**2
     S = (X2-X1)*(X3-X1) + (Y2-Y1)*(Y3-Y1)
     T = (X3-X1)**2 + (Y3-Y1)**2
-
-    
-    print('Pos 1',X1,Y1)
-    print('Pos 2',X2,Y2)
-    print('Pos 3',X3,Y3)
     
     if (S > R): 
-        print('a')
         DPL = (X3-X2)**2 + (Y3-Y2)**2
     elif (S < 0): 
-        print('b')
         DPL = T
     else:
-        print('c') 
         DPL = T-S*S/R
-
     
-    print('DPL CALC:')
-    print(T,S,R)
-    print(DPL)
-    print('')
+    DPL = np.sqrt(DPL)
+
+    breakpoint()
 
     return(DPL)
     # End of Subroutine
