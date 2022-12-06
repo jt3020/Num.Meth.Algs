@@ -2,17 +2,29 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Advancing Front Python Routine
-# Not yet in python indexing
+# Now with python indexing
 def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
+
+    IA = np.zeros(1000,dtype=int)
+    IB = np.zeros(1000,dtype=int)
+    MS = np.zeros(1000,dtype=int)
+    MT = np.zeros(1000,dtype=int)
+    XP = np.zeros(1000)
+    YP = np.zeros(1000)
+    DP = np.zeros(1000)
 
     # COMPUTE THE LENGTHS OF THE BOUNDARY SEGMENTS AND THEIR MID-POINTS
     NP = NB
-    for I in range(1,NB+1):
-        IA = MA[I-1]
-        IB = MB[I-1]
-        XP[I-1] = (X[IA-1] + X[IB-1])/2
-        YP[I-1] = (Y[IA-1] + Y[IB-1])/2
-        DP[I-1] = (X[IB-1] - X[IA-1])**2 + (Y[IB-1] - Y[IA-1])**2
+
+    for I in range(NB):
+        IA = MA[I]
+        IB = MB[I]
+        XP[I] = (X[IA] + X[IB])/2
+        YP[I] = (Y[IA] + Y[IB])/2
+        DP[I] = (X[IB] - X[IA])**2 + (Y[IB] - Y[IA])**2
+
+    # Debugging performed up to here
+    breakpoint()
 
     # PREPARATION WORKS FOR THE BASE SEGMENT, J1 - J2 = LAST SEGMENT ON THE FRONT
     LoopBreak = False
@@ -52,6 +64,7 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
 
             # DETERMINE CANDIDATE NODES ON THE GENERATION FRONT
             for I in range(1,NS+1): # 22 Loop
+                
                 J = MS[I-1]
                 P = X[J-1]
                 Q = Y[J-1]
@@ -100,14 +113,14 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
 
                 if CHKINT(J1,J2,0,X1,Y1,X2,Y2,P,Q,NS,MS,MT,X,Y) == False: continue # GOTO 66
 
-                D = (X(MT[0]) - X(MS[0]))**2 + (Y(MT[0]) - Y(MS[0]))**2
-                H = DPL(X(MS[0]),Y(MS[0]),X(MT[0]),Y(MT[0]),P,Q)
+                D = (X[MT[0]] - X[MS[0]])**2 + (Y[MT[0]] - Y[MS[0]])**2
+                H = DPL(X[MS[0]],Y[MS[0]],X[MT[0]],Y[MT[0]],P,Q)
 
                 for J in range(2,NS+1): # 99 for loop
-                    S = DPL(X(MS[J-1]),Y(MS[J-1]),X(MT[J-1]),Y(MT[J-1]),P,Q)
+                    S = DPL(X[MS[J-1]],Y[MS[J-1]],X[MT[J-1]],Y[MT[J-1]],P,Q)
                     if (S >= H): continue # GOTO 99
                     H = S
-                    D = (X(MT[J-1])-X(MS[J-1]))**2 + (Y(MT[J-1])-Y(MS[J-1]))**2
+                    D = (X[MT[J-1]]-X[MS[J-1]])**2 + (Y[MT[J-1]]-Y[MS[J-1]])**2
                 # 99 Continue
                 if (H > D*T**2):
                     ExitLoop = True 
@@ -198,9 +211,28 @@ def DPL(X1,Y1,X2,Y2,X3,Y3):
     R = (X2-X1)**2 + (Y2-Y1)**2
     S = (X2-X1)*(X3-X1) + (Y2-Y1)*(Y3-Y1)
     T = (X3-X1)**2 + (Y3-Y1)**2
-    DPL = T-S*S/R
-    if (S > R): DPL = (X3-X2)**2 + (Y3-Y2)**2
-    if (S < 0): DPL = T
+
+    
+    print('Pos 1',X1,Y1)
+    print('Pos 2',X2,Y2)
+    print('Pos 3',X3,Y3)
+    
+    if (S > R): 
+        print('a')
+        DPL = (X3-X2)**2 + (Y3-Y2)**2
+    elif (S < 0): 
+        print('b')
+        DPL = T
+    else:
+        print('c') 
+        DPL = T-S*S/R
+
+    
+    print('DPL CALC:')
+    print(T,S,R)
+    print(DPL)
+    print('')
+
     return(DPL)
     # End of Subroutine
 
@@ -293,17 +325,45 @@ def CHKINT(J1,J2,J,X1,Y1,X2,Y2,P,Q,NB,MA,MB,X,Y):
 # XP[:], YP[:], DP[:] - Working arrays containing mid-points and segment lengths - length 5000
 # MS[:], MT[:] - Candidate segments used in element construction - length 1000
 
+# Known dimension
 MS = np.zeros(1000)
 MT = np.zeros(1000)
 XP = np.zeros(5000)
 YP = np.zeros(5000)
 DP = np.zeros(5000)
 
-X = []
-Y = []
-ME = []
-MA = []
-MB = []
+# Unknown dimension
+X = np.zeros(1000)
+Y = np.zeros(1000)
+ME = np.zeros(1000,dtype=int)
+MA = np.zeros(1000,dtype=int)
+MB = np.zeros(1000,dtype=int)
+
+# Test problem using square grid
+NN = 4
+X[0] = 0.0; Y[0] = 0.0
+X[1] = 1.0; Y[1] = 0.0
+X[2] = 1.0; Y[2] = 1.0
+X[3] = 0.0; Y[3] = 1.0
+
+NB = 4
+MA[0] = 0; MB[0] = 1
+MA[1] = 1; MB[1] = 2
+MA[2] = 2; MB[2] = 3
+MA[3] = 3; MB[3] = 0
+
+NE = 0
+
+AFT2D(NN,X,Y,NB,MA,MB,NE,ME)
+
+print('--- Results: ---')
+print('Number of Nodes:', NN)
+for i in range(NN):
+    print('Node ',i,' Position:',X[i],Y[i])
+print('')
+print('Number of Elements:', NE)
+for i in range(NE):
+    print('Triangle ', i,' Nodes:',ME[NE*3],ME[NE*3 + 2],ME[NE*3 + 2])
 
 
 
