@@ -28,8 +28,9 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
     # PREPARATION WORKS FOR THE BASE SEGMENT, J1 - J2 = LAST SEGMENT ON THE FRONT
     LoopBreak = False
     while LoopBreak == False:
+        breakpoint()
         ExitLoop = False 
-        J3 = 0 # 5
+        J3 = -1 # 5
         J1 = MA[NB-1]
         J2 = MB[NB-1]
         NB = NB-1
@@ -48,36 +49,44 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
         YC = YM + B
         C = X2*Y1 - X1*Y2 + TOR
 
+        # breakpoint()
+
         # Debugging performed up to here
 
         # FILTER OFF SEGMENTS TOO FAR AWAY FROM THE BASE SEGMENT
         ValidElement = False
         while ValidElement == False:
-            NS = -1 # 9
+            # breakpoint()
+            NS = 0 # 9
             for I in range(NB): ## Loop 11
                 IA = MA[I]
                 IB = MB[I]
                 if (DPL(X[IA],Y[IA],X[IB],Y[IB],XC,YC) > RR): continue
                 NS = NS + 1
-                MS[NS] = IA
-                MT[NS] = IB
+                MS[NS-1] = IA
+                MT[NS-1] = IB
                 # 11 Continue
 
             # Debugging performed up to here (DPL not checked)
+            # breakpoint()
 
             # DETERMINE CANDIDATE NODES ON THE GENERATION FRONT
-            for I in range(1,NS+1): # 22 Loop
+            for I in range(NS): # 22 Loop
                 
-                J = MS[I-1]
-                P = X[J-1]
-                Q = Y[J-1]
+                J = MS[I]
+                P = X[J]
+                Q = Y[J]
+                # breakpoint()
                 if ((P-XC)**2+(Q-YC)**2 > RR or A*P+B*Q < C): continue
                 if CHKINT(J1,J2,J,X1,Y1,X2,Y2,P,Q,NS,MS,MT,X,Y): # Effectively continue if returns False
                     CIRCLE(X1,Y1,X2,Y2,P,Q,XC,YC,RR)
                     J3=J
                 # 22 Continue
+                # breakpoint()
+
+            # breakpoint()
             
-            if (J3 == 0):
+            if (J3 == -1):
                 H = np.sqrt(RR-TOR-DD/4)
                 R = np.sqrt(RR-TOR)
                 AREA = np.sqrt(DD) * (R+H)
@@ -86,7 +95,9 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
                 AREA = A*X[J3-1] + B*Y[J3-1] + X1*Y2 - X2*Y1
                 S = DD + (X[J3-1] - X1)**2 + (Y[J3-1] - Y1)**2 + (X[J3-1] - X2)**2 + (Y[J3-1] - Y2)**2
                 ALPHA = np.sqrt(12.0)*AREA/S
-            
+            # breakpoint()
+
+
             # CREATE INTERIOR NODES, CHECK THEIR QUALITIES AND COMPARE WITH FRONTAL NODE J3    
             XX = XM + A/2
             YY = YM + B/2
@@ -135,6 +146,7 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
             II = 3*NE
 
             # IF NO NODE CAN BE FOUND TO FORM A VALID ELEMENT WITH THE BASE SEGMENT, ENLARGE THE SEARCH RADIUS
+            # breakpoint()
             if (J3 == 0): # GOTO 2 if J3 != 0
                 
                 if (RR > 100*DD):
@@ -144,12 +156,15 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
                 YC = YC + YC-YM
                 RR = (XC - X1)**2 + (YC - Y1)**2 + TOR
                 # GOTO 9 
+                # breakpoint()
                 ValidElement = False
                 
             else:
                 # NODE J3 IS FOUND TO FORM VALID ELEMENT WITH BASE SEGMENT J1-J2 - 
+                # breakpoint()
                 ValidElement = True
             
+        # breakpoint()
         if ExitLoop == False:
             # UPDATE GENERATION FRONT WITH FRONTAL NODE J3
             # 2
@@ -158,34 +173,44 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
             ME[II+1] = J2
             ME[II+2] = J3
             FrontUpdate = True
-            for I in range(1,NB+1):
+            # breakpoint()
+            for I in range(NB):
+                # breakpoint()
                 if (MA[I] != J3 or MB[I] != J1): continue
-                MA[I-1] = MA[NB-1]
-                MB[I-1] = MB[NB-1]
+                MA[I] = MA[NB]
+                MB[I] = MB[NB]
                 NB = NB-1
                 # GOTO 7
-                if I == NB: FrontUpdate = False
+                # breakpoint()
+                if I == NB-1: FrontUpdate = False
             # 77 Continue
             if FrontUpdate == True:
                 NB = NB + 1
                 MA[NB-1] = J1
                 MB[NB-1] = J3
-            for I in range(1,NB+1): # Position 7, Loop 88
-                if (MA[I-1] != J2 or MB[I-1] != J3): continue # GOTO 88
+            # breakpoint()
+            for I in range(NB): # Position 7, Loop 88
+                # breakpoint()
+                if (MA[I] != J2 or MB[I] != J3): LoopBreak = False; continue # GOTO 88
                 if (NB == 1): 
                     print('*** Mesh generation succeeded! ***')
                     return
-                MA[I-1] = MA[NB-1]
-                MB[I-1] = MB[NB-1]
+                # breakpoint()
+                MA[I] = MA[NB]
+                MB[I] = MB[NB]
                 NB = NB-1
+                # breakpoint()
                 LoopBreak = True # GOTO 5 ################## 5
 
-            if LoopBreak: LoopBreak = False; break
+            # breakpoint()
+
+            if LoopBreak: LoopBreak = False; continue
             # 88 
             NB = NB+1
             MA[NB-1] = J3
             MB[NB-1] = J2
-            break # GOTO 5 ######################### 5
+            # breakpoint()
+            continue # GOTO 5 ######################### 5
 
         # INTERIOR NODE NN CREATED, UPDATE GENERATION FRONT WITH INTERIOR NODE NN
         # 3 
@@ -203,8 +228,10 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
         NB=NB+1
         MA[NB-1]=NN
         MB[NB-1]=J2
-        break # GOTO 5 ################# 5
+        # breakpoint()
+        continue # GOTO 5 ################# 5
     # End of Log5 Loop
+    # breakpoint()
     # End of subroutine
 
 # CALCULATE THE DISTANCE BETWEEN POINT (X3,Y3) TO LINE SEGMENT (X1,Y1)-(X2,Y2)
@@ -222,9 +249,9 @@ def DPL(X1,Y1,X2,Y2,X3,Y3):
     else:
         DPL = T-S*S/R
     
-    DPL = np.sqrt(DPL)
+    # DPL = np.sqrt(DPL)
 
-    breakpoint()
+    # breakpoint()
 
     return(DPL)
     # End of Subroutine
@@ -356,7 +383,7 @@ for i in range(NN):
 print('')
 print('Number of Elements:', NE)
 for i in range(NE):
-    print('Triangle ', i,' Nodes:',ME[NE*3],ME[NE*3 + 2],ME[NE*3 + 2])
+    print('Triangle ', i,' Nodes:',ME[i*3 + 1],ME[i*3 + 2],ME[i*3 + 3])
 
 
 
