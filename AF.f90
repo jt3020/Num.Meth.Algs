@@ -7,7 +7,7 @@ SUBROUTINE AFT2D (NN,X,Y,NB,MA,MB,NE,ME)
 ! {MA(I),MB(I),I=1,1000} CANDIDATE SEGMENTS IN ELEMENT CONSTRUCTION
 IMPLICIT DOUBLE PRECISION (A-H,O-Z)
  DIMENSION X(*),Y(*),ME(*),MA(*),MB(*)
-DIMENSION MS(1000),MT(1000),XP(5000),YP(5000),DP(5000)
+DIMENSION MS(10),MT(10),XP(10),YP(10),DP(10)
 ! COMPUTE THE LENGTHS OF THE BOUNDARY SEGMENTS AND THEIR MID-POINTS 
  NP=NB
  DO I=1,NB
@@ -17,6 +17,21 @@ IB=MB(I)
  YP(I)=(Y(IA)+Y(IB))/2
  DP(I)=(X(IB)-X(IA))**2+(Y(IB)-Y(IA))**2
 ENDDO
+
+! Write(*,*) "---"
+! Write(*,*) MA(1), MA(2), MA(3), MA(4)
+! Write(*,*) MB(1), MB(2), MB(3), MB(4)
+! Write(*,*) ME
+! Write(*,*) MS
+! Write(*,*) MT
+! Write(*,*) IA
+! Write(*,*) IB
+! Write(*,*) XP 
+! Write(*,*) YP 
+! Write(*,*) DP
+
+
+
 ! PREPARATION WORKS FOR THE BASE SEGMENT, J1-J2 = LAST SEGMENT ON THE FRONT
  5 J3=0
  J1=MA(NB)
@@ -36,16 +51,50 @@ ENDDO
  XC=XM+A
  YC=YM+B
  C=X2*Y1-X1*Y2+TOR
+
+! Write(*,*) "---"
+! Write(*,*) A
+! Write(*,*) B
+! Write(*,*) C
+! Write(*,*) DD
+! Write(*,*) IA, IB 
+! Write(*,*) J1, J2, J3 
+! Write(*,*) TOR, RR 
+! Write(*,*) XC, YC 
+! Write(*,*) X1, Y1 
+! Write(*,*) X2, Y2 
+! Write(*,*) XM, YM
+
+! Checked against python up to here
+
+
 ! FILTER OFF SEGMENTS TOO FAR AWAY FROM THE BASE SEGMENT
  9 NS=0
  DO 11 I=1,NB
  IA=MA(I)
  IB=MB(I)
+ Write(*,*) 'DPL #',I,NB,':',DPL(X(IA),Y(IA),X(IB),Y(IB),XC,YC)
+ Write(*,*) X(IA),Y(IA)
+ Write(*,*) X(IB),Y(IB)
+ Write(*,*) XC,YC
  IF (DPL(X(IA),Y(IA),X(IB),Y(IB),XC,YC).GT.RR) GOTO 11
  NS=NS+1
  MS(NS)=IA
  MT(NS)=IB
  11 CONTINUE
+
+Write(*,*) "---" 
+Write(*,*) IA, IB 
+Write(*,*) MA(:8)
+Write(*,*) MB(:8)
+Write(*,*) 
+Write(*,*) MS 
+Write(*,*) MT 
+Write(*,*) NS
+Write(*,*) DPL(X(IA),Y(IA),X(IB),Y(IB),XC,YC)
+! Checked against python up to here - agrees only for first loop
+
+
 ! DETERMINE CANDIDATE NODES ON THE GENERATION FRONT
  DO 22 I=1,NS
  J=MS(I)
@@ -56,6 +105,18 @@ ENDDO
  CALL CIRCLE (X1,Y1,X2,Y2,P,Q,XC,YC,RR)
  J3=J
  22 CONTINUE
+
+! Write(*,*) "---"
+! Write(*,*) MS 
+! Write(*,*) X(:4)
+! Write(*,*) Y(:4)
+! Write(*,*) 
+! Write(*,*) J, P, Q 
+! Write(*,*) J3
+! Write(*,*) NS
+
+! First loop checked up to here
+
  IF (J3.EQ.0) THEN
  H=SQRT(RR-TOR-DD/4)
  R=SQRT(RR-TOR)
@@ -66,6 +127,18 @@ ENDDO
  S=DD+(X(J3)-X1)**2+(Y(J3)-Y1)**2+(X(J3)-X2)**2+(Y(J3)-Y2)**2
  ALPHA=SQRT(12.0)*AREA/S
  ENDIF
+
+! Write(*,*) "---"
+! Write(*,*) Area
+! Write(*,*) S
+! Write(*,*) Alpha
+! Write(*,*) 
+! Write(*,*) J3 
+! Write(*,*) A, X(1)
+! Write(*,*) B, Y(1)
+! Write(*,*) X1, Y1 
+! Write(*,*) X2, Y2
+
 ! CREATE INTERIOR NODES, CHECK THEIR QUALITIES AND COMPARE WITH FRONTAL NODE J3
  XX=XM+A/2
  YY=YM+B/2
@@ -85,25 +158,63 @@ ENDDO
  IF (S.GT.1) S=1/S
  BETA=S*(2-S)*ALPHA
  T=1/ALPHA-SQRT(ABS(1/ALPHA**2-1))
+
+! First loop checked against python
+Write(*,*) "---"
+! Write(*,*) XX, YY 
+! Write(*,*) S1, S2 
+! Write(*,*) NP 
+! Write(*,*) 
+! Write(*,*) S 
+! Write(*,*) F, F1 
+! Write(*,*) Beta, Alpha
+! Write(*,*) T 
+
+
+
+
  DO 66 I=1,9
- S=(11-I)*F1/10
- GAMMA=SQRT(3.0)*S*S*(2-S/F)/(S*S*F+0.75*F)
- IF (GAMMA.LT.BETA) GOTO 1
- P=XM+A*S
- Q=YM+B*S
- IF ((P-XC)**2+(Q-YC)**2.GT.RR) GOTO 66
- CALL CHKINT (J1,J2,0,X1,Y1,X2,Y2,P,Q,NS,MS,MT,X,Y,*66)
- D=(X(MT(1))-X(MS(1)))**2+(Y(MT(1))-Y(MS(1)))**2
- H=DPL(X(MS(1)),Y(MS(1)),X(MT(1)),Y(MT(1)),P,Q)
- DO 99 J=2,NS
- S=DPL(X(MS(J)),Y(MS(J)),X(MT(J)),Y(MT(J)),P,Q)
- IF (S.GE.H) GOTO 99
- H=S
- D=(X(MT(J))-X(MS(J)))**2+(Y(MT(J))-Y(MS(J)))**2
- 99 CONTINUE
- IF (H.GT.D*T**2) GOTO 3
- 66 CONTINUE
+    S=(11-I)*F1/10
+    GAMMA=SQRT(3.0)*S*S*(2-S/F)/(S*S*F+0.75*F)
+    IF (GAMMA.LT.BETA) Then 
+        Write(*,*) "GOTO 1"
+        GOTO 1
+    EndIf
+    P=XM+A*S
+    Q=YM+B*S
+    IF ((P-XC)**2+(Q-YC)**2.GT.RR) Then 
+        Write(*,*) "GOTO 66"
+        GOTO 66
+    EndIf
+    CALL CHKINT (J1,J2,0,X1,Y1,X2,Y2,P,Q,NS,MS,MT,X,Y,*66)
+    D=(X(MT(1))-X(MS(1)))**2+(Y(MT(1))-Y(MS(1)))**2
+    H=DPL(X(MS(1)),Y(MS(1)),X(MT(1)),Y(MT(1)),P,Q)
+        DO 99 J=2,NS
+            S=DPL(X(MS(J)),Y(MS(J)),X(MT(J)),Y(MT(J)),P,Q)
+            IF (S.GE.H) Then 
+                Write(*,*) "GOTO 99"
+                GOTO 99
+            EndIf
+            H=S
+            D=(X(MT(J))-X(MS(J)))**2+(Y(MT(J))-Y(MS(J)))**2
+            99 CONTINUE
+    IF (H.GT.D*T**2) Then 
+        Write(*,*) "GOTO 3"
+        GOTO 3
+    EndIf
+    66 CONTINUE
+
  1 II=3*NE
+
+! Checked against python up to here
+! Write(*,*) "---"
+! Write(*,*) S, F1
+! Write(*,*) Beta, Gamma 
+! Write(*,*) P, Q 
+! Write(*,*) D, H 
+! Write(*,*) A, B
+
+
 ! IF NO NODE CAN BE FOUND TO FORM A VALID ELEMENT WITH THE BASE SEGMENT, 
 ! ENLARGE THE SEARCH RADIUS
  IF (J3.NE.0) GOTO 2
@@ -121,6 +232,15 @@ ENDDO
  ME(II+1)=J1
  ME(II+2)=J2
  ME(II+3)=J3
+
+! !Debug here
+! Write(*,*) "---"
+! Write(*,*) J1, J2, J3 
+! Write(*,*) II 
+! Write(*,*) NE 
+! Write(*,*) ME(:6)
+
+
  DO 77 I=1,NB
  IF (MA(I).NE.J3.OR.MB(I).NE.J1) GOTO 77
  MA(I)=MA(NB)
@@ -128,21 +248,38 @@ ENDDO
  NB=NB-1
  GOTO 7
  77 CONTINUE
+
+
+
  NB=NB+1
  MA(NB)=J1
  MB(NB)=J3
- 7 DO 88 I=1,NB
- IF (MA(I).NE.J2.OR.MB(I).NE.J3) GOTO 88
- IF (NB.EQ.1) RETURN
- MA(I)=MA(NB)
- MB(I)=MB(NB)
- NB=NB-1
- GOTO 5
- 88 CONTINUE
+ 7 CONTINUE
+
+!Debug matches here
+! Write(*,*) "---"
+! Write(*,*) MA(:8)
+! Write(*,*) MB(:8) 
+! Write(*,*) NB 
+
+ DO 88 I=1,NB
+    IF (MA(I).NE.J2.OR.MB(I).NE.J3) GOTO 88
+    IF (NB.EQ.1) Then 
+        Write(*,*) "MESH GENERATED"
+        RETURN
+    EndIf
+    MA(I)=MA(NB)
+    MB(I)=MB(NB)
+    NB=NB-1
+    GOTO 5
+    88 CONTINUE
  NB=NB+1
  MA(NB)=J3
  MB(NB)=J2
  GOTO 5
+
+ Write(*,*) "NEW NODE", NN+1
+
 ! INTERIOR NODE NN CREATED, UPDATE GENERATION FRONT WITH INTERIOR NODE NN
  3 NN=NN+1
  X(NN)=P
@@ -266,14 +403,14 @@ IF (J.EQ.IA.OR.J.EQ.IB.OR.J2.EQ.IA.OR.J2.EQ.IB) GOTO 22
 
     call AFT2D(NN,X,Y,NB,MA,MB,NE,ME)
 
-    write(*,*) '--- Results: ---'
-    write(*,*) 'Number of Nodes:', NN
-    Do i = 1, NN
-        write(*,*) 'Node ',i,' Position:',X(i),Y(i)
-    EndDo
-    write(*,*) ''
-    write(*,*) 'Number of Elements:', NE
-    Do i = 1, 5
-        write(*,*) 'Triangle ', i,' Nodes:', ME((i-1)*3+1), ME((i-1)*3 + 2), ME((i-1)*3 + 3)
-    EndDo
+    ! write(*,*) '--- Results: ---'
+    ! write(*,*) 'Number of Nodes:', NN
+    ! Do i = 1, NN
+    !     write(*,*) 'Node ',i,' Position:',X(i),Y(i)
+    ! EndDo
+    ! write(*,*) ''
+    ! write(*,*) 'Number of Elements:', NE
+    ! Do i = 1, 2
+    !     write(*,*) 'Triangle ', i,' Nodes:', ME((i-1)*3+1), ME((i-1)*3 + 2), ME((i-1)*3 + 3)
+    ! EndDo
  End Program 

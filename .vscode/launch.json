@@ -11,6 +11,14 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Fortran: Current File",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/AF",
+            "cwd": "${workspaceFolder}",
+            "MIMode": "gdb"
         }
     ]
 }
