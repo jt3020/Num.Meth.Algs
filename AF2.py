@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 # Now with python indexing
 def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
 
-    IA = np.zeros(1000,dtype=int)
-    IB = np.zeros(1000,dtype=int)
-    MS = np.zeros(1000,dtype=int)
-    MT = np.zeros(1000,dtype=int)
-    XP = np.zeros(1000)
-    YP = np.zeros(1000)
-    DP = np.zeros(1000)
+    IA = np.zeros(5000,dtype=int)
+    IB = np.zeros(5000,dtype=int)
+    MS = np.zeros(5000,dtype=int)
+    MT = np.zeros(5000,dtype=int)
+    XP = np.zeros(5000)
+    YP = np.zeros(5000)
+    DP = np.zeros(5000)
 
     # COMPUTE THE LENGTHS OF THE BOUNDARY SEGMENTS AND THEIR MID-POINTS
     NP = NB
@@ -125,26 +125,26 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
             for I in range(1,9+1): # 66 for loop
                 S = (11-I) * F1/10
                 GAMMA = np.sqrt(3.0)*S*S*(2-S/F)/(S*S*F+0.75*F)
-                if (GAMMA < BETA): print('GOTO 1'); break # GOTO 1
+                if (GAMMA < BETA): break # GOTO 1
                 P = XM + A*S
                 Q = YM + B*S
 
-                if ((P-XC)**2 + (Q-YC)**2 > RR): print('GOTO 66'); continue # GOTO 66
+                if ((P-XC)**2 + (Q-YC)**2 > RR): continue # GOTO 66
 
-                if CHKINT(J1,J2,0,X1,Y1,X2,Y2,P,Q,NS,MS,MT,X,Y) == False: print('GOTO 66 chkint'); continue # GOTO 66
+                if CHKINT(J1,J2,0,X1,Y1,X2,Y2,P,Q,NS,MS,MT,X,Y) == False: continue # GOTO 66
 
                 D = (X[MT[1]] - X[MS[1]])**2 + (Y[MT[1]] - Y[MS[1]])**2
                 H = DPL(X[MS[1]],Y[MS[1]],X[MT[1]],Y[MT[1]],P,Q)
 
                 for J in range(2,NS+1): # 99 for loop
                     S = DPL(X[MS[J]],Y[MS[J]],X[MT[J]],Y[MT[J]],P,Q)
-                    if (S >= H): print('GOTO 99'); continue # GOTO 99
+                    if (S >= H): continue # GOTO 99
                     H = S
                     D = (X[MT[J]]-X[MS[J]])**2 + (Y[MT[J]]-Y[MS[J]])**2
                 # 99 Continue
                 if (H > D*T**2):
                     ExitLoop = True 
-                    print('GOTO 3'); break  # !!!!!!!!!!!!!!!!!!!1 GOTO 3 - This allows you to skip the GOTO 5 flag 
+                    break  # !!!!!!!!!!!!!!!!!!!1 GOTO 3 - This allows you to skip the GOTO 5 flag 
                 # 66 Continue
 
             # breakpoint()
@@ -377,44 +377,77 @@ def CHKINT(J1,J2,J,X1,Y1,X2,Y2,P,Q,NB,MA,MB,X,Y):
 # MS[:], MT[:] - Candidate segments used in element construction - length 1000
 
 # Known dimension
-MS = np.zeros(1000)
-MT = np.zeros(1000)
+MS = np.zeros(5000)
+MT = np.zeros(5000)
 XP = np.zeros(5000)
 YP = np.zeros(5000)
 DP = np.zeros(5000)
 
 # Unknown dimension
-X = np.zeros(1000)
-Y = np.zeros(1000)
-ME = np.zeros(1000,dtype=int)
-MA = np.zeros(1000,dtype=int)
-MB = np.zeros(1000,dtype=int)
-
-# Test problem using square grid
-NN = 4
-X[1] = 0.0; Y[1] = 0.0
-X[2] = 1.0; Y[2] = 0.0
-X[3] = 1.0; Y[3] = 1.0
-X[4] = 0.0; Y[4] = 1.0
-
-NB = 4
-MA[1] = 1; MB[1] = 2
-MA[2] = 2; MB[2] = 3
-MA[3] = 3; MB[3] = 4
-MA[4] = 4; MB[4] = 1
-
+X = np.zeros(5000)
+Y = np.zeros(5000)
+ME = np.zeros(5000,dtype=int)
+MA = np.zeros(5000,dtype=int)
+MB = np.zeros(5000,dtype=int)
 NE = 0
+
+
+# Manually set boundary size for square problem
+Delta = 20
+
+
+NN = Delta*4
+i = 0
+for j in range(1,Delta+2):
+    i = i + 1
+    X[i] = (j-1)*(1/Delta) ; Y[i] = 0.0
+for j in range(1,Delta+1):
+    i = i + 1
+    X[i] = 1.0 ; Y[i] = (j)*(1/Delta)
+for j in range(1,Delta+1):
+    i = i + 1
+    X[i] = (Delta-j)*(1/Delta) ; Y[i] = 1.0
+for j in range(1,Delta):
+    i = i + 1
+    X[i] = 0.0 ; Y[i] = (Delta-j)*(1/Delta)
+
+NB = NN 
+for i in range(1,NB+1):
+    MA[i] = i
+    if i != NB:
+        MB[i] = i+1
+    else:
+        MB[i] = 1
+
+# breakpoint()
 
 NN, NE, ME = AFT2D(NN,X,Y,NB,MA,MB,NE,ME)
 
-print('--- Results: ---')
-print('Number of Nodes:', NN)
-for i in range(NN):
-    print('Node ',i,' Position:',X[i],Y[i])
-print('')
-print('Number of Elements:', NE)
+TriNodes = np.zeros((4,2))
+
+# print('--- Results: ---')
+# print('Number of Nodes:', NN)
+# for i in range(NN):
+#     print('Node ',i,' Position:',X[i],Y[i])
+# print('')
+# print('Number of Elements:', NE)
+# for i in range(NE):
+#     print('Triangle ', i,' Nodes:',ME[i*3 + 1],ME[i*3 + 2],ME[i*3 + 3])
+
 for i in range(NE):
-    print('Triangle ', i,' Nodes:',ME[i*3 + 1],ME[i*3 + 2],ME[i*3 + 3])
+    TriNodes[0,0] = X[ME[i*3 + 1]]
+    TriNodes[0,1] = Y[ME[i*3 + 1]]
+    TriNodes[1,0] = X[ME[i*3 + 2]]
+    TriNodes[1,1] = Y[ME[i*3 + 2]]
+    TriNodes[2,0] = X[ME[i*3 + 3]]
+    TriNodes[2,1] = Y[ME[i*3 + 3]]
+    TriNodes[3,0] = X[ME[i*3 + 1]]
+    TriNodes[3,1] = Y[ME[i*3 + 1]]
+    plt.plot(TriNodes[:,0],TriNodes[:,1],color='black')
+
+plt.show()
+    
+
 
 
 
