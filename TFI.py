@@ -24,7 +24,7 @@ def Transfinite_Interpolation(xb,yb,xt,yt,xl,yl,xr,yr,x,y):
                     - ( Xi*Eta*yr[m] + (1.-Xi)*Eta*yl[m] + Xi*(1.-Eta)*yr[0] + (1.-Xi)*(1.-Eta)*yl[0] )
 
 n = 20
-m = 3
+m = 10
 dx = 1/(n-1)
 dy = 1/(m-1)
 
@@ -44,16 +44,16 @@ xr = np.zeros(m)
 yr = np.zeros(m)
 
 for i in range(n):
-    xb[i] = dx*i
-    yb[i] = 0.0
-    xt[i] = dx*i
-    yt[i] = 1.0
+    xb[i] = i/(n-1)
+    yb[i] = 0.0 + 0.5*np.sin(np.pi*xb[i])
+    xt[i] = i/(n-1)
+    yt[i] = 1.0 + 0.5*np.sin(np.pi*xb[i])
 
 for i in range(m):
     xl[i] = 0.0
-    yl[i] = dy*i
+    yl[i] = i/(m-1)
     xr[i] = 1.0
-    yr[i] = dy*i
+    yr[i] = i/(m-1)
 
 x[0,:] = xb
 x[m-1,:] = xt
