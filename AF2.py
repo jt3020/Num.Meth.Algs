@@ -16,7 +16,7 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
     # COMPUTE THE LENGTHS OF THE BOUNDARY SEGMENTS AND THEIR MID-POINTS
     NP = NB
 
-    for I in range(NB):
+    for I in range(1,NB+1):
         IA = MA[I]
         IB = MB[I]
         XP[I] = (X[IA] + X[IB])/2
@@ -33,9 +33,9 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
     while LoopBreak == False:
         # breakpoint()
         ExitLoop = False 
-        J3 = -1 # 5
-        J1 = MA[NB-1]
-        J2 = MB[NB-1]
+        J3 = 0 # 5
+        J1 = MA[NB]
+        J2 = MB[NB]
         NB = NB-1
         X1 = X[J1]
         Y1 = Y[J1]
@@ -61,21 +61,21 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
         while ValidElement == False:
             # breakpoint()
             NS = 0 # 9
-            for I in range(NB): ## Loop 11
+            for I in range(1,NB+1): ## Loop 11
                 IA = MA[I]
                 IB = MB[I]
                 # print('DPL #',I,NB,':',DPL(X[IA],Y[IA],X[IB],Y[IB],XC,YC))
                 if (DPL(X[IA],Y[IA],X[IB],Y[IB],XC,YC) > RR): continue
                 NS = NS + 1
-                MS[NS-1] = IA
-                MT[NS-1] = IB
+                MS[NS] = IA
+                MT[NS] = IB
                 # 11 Continue
             
             # Debugging performed up to here (DPL not checked)
-            breakpoint()
+            # breakpoint()
 
             # DETERMINE CANDIDATE NODES ON THE GENERATION FRONT
-            for I in range(NS): # 22 Loop
+            for I in range(1,NS+1): # 22 Loop
                 
                 J = MS[I]
                 P = X[J]
@@ -83,21 +83,21 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
                 # breakpoint()
                 if ((P-XC)**2+(Q-YC)**2 > RR or A*P+B*Q < C): continue
                 if CHKINT(J1,J2,J,X1,Y1,X2,Y2,P,Q,NS,MS,MT,X,Y): # Effectively continue if returns False
-                    RR, XC, YC = CIRCLE(X1,Y1,X2,Y2,P,Q,XC,YC,RR)
+                    RR, XC, YC = CIRCLE(X1,Y1,X2,Y2,P,Q,XC,YC,RR) # Only executed if returns true
                     J3=J
                 # 22 Continue
                 # breakpoint()
 
             # breakpoint()
             
-            if (J3 == -1):
+            if (J3 == 0):
                 H = np.sqrt(RR-TOR-DD/4)
                 R = np.sqrt(RR-TOR)
                 AREA = np.sqrt(DD) * (R+H)
                 ALPHA = AREA/((R+H)**2 + 0.75*DD)
             else:
-                AREA = A*X[J3-1] + B*Y[J3-1] + X1*Y2 - X2*Y1
-                S = DD + (X[J3-1] - X1)**2 + (Y[J3-1] - Y1)**2 + (X[J3-1] - X2)**2 + (Y[J3-1] - Y2)**2
+                AREA = A*X[J3] + B*Y[J3] + X1*Y2 - X2*Y1
+                S = DD + (X[J3] - X1)**2 + (Y[J3] - Y1)**2 + (X[J3] - X2)**2 + (Y[J3] - Y2)**2
                 ALPHA = np.sqrt(12.0)*AREA/S
             # breakpoint()
 
@@ -107,13 +107,13 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
             YY = YM + B/2
             S1 = 0
             S2 = 0
-            for I in range(NP): # 44 for loop
+            for I in range(1,NP+1): # 44 for loop
                 S = (XP[I] - XX)**2 + (YP[I] - YY)**2 + TOR
                 S1 = S1 + DP[I]/S
                 S2 = S2 + 1/S # 44 Continue
             F = np.sqrt(0.75*S1/(S2*DD))
             F1 = F
-            for I in range(5): # 111 for loop
+            for I in range(1,5+1): # 111 for loop
                 F1 = (2*F1**3 + 3*F)/(3*F1*F1 + 2.25) # 111
             S = F*DD/AREA
             if (S > 1): S = 1/S
@@ -122,8 +122,8 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
 
             # breakpoint()
 
-            for I in range(9): # 66 for loop
-                S = (10-I) * F1/10
+            for I in range(1,9+1): # 66 for loop
+                S = (11-I) * F1/10
                 GAMMA = np.sqrt(3.0)*S*S*(2-S/F)/(S*S*F+0.75*F)
                 if (GAMMA < BETA): print('GOTO 1'); break # GOTO 1
                 P = XM + A*S
@@ -133,14 +133,14 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
 
                 if CHKINT(J1,J2,0,X1,Y1,X2,Y2,P,Q,NS,MS,MT,X,Y) == False: print('GOTO 66 chkint'); continue # GOTO 66
 
-                D = (X[MT[0]] - X[MS[0]])**2 + (Y[MT[0]] - Y[MS[0]])**2
-                H = DPL(X[MS[0]],Y[MS[0]],X[MT[0]],Y[MT[0]],P,Q)
+                D = (X[MT[1]] - X[MS[1]])**2 + (Y[MT[1]] - Y[MS[1]])**2
+                H = DPL(X[MS[1]],Y[MS[1]],X[MT[1]],Y[MT[1]],P,Q)
 
                 for J in range(2,NS+1): # 99 for loop
-                    S = DPL(X[MS[J-1]],Y[MS[J-1]],X[MT[J-1]],Y[MT[J-1]],P,Q)
+                    S = DPL(X[MS[J]],Y[MS[J]],X[MT[J]],Y[MT[J]],P,Q)
                     if (S >= H): print('GOTO 99'); continue # GOTO 99
                     H = S
-                    D = (X[MT[J-1]]-X[MS[J-1]])**2 + (Y[MT[J-1]]-Y[MS[J-1]])**2
+                    D = (X[MT[J]]-X[MS[J]])**2 + (Y[MT[J]]-Y[MS[J]])**2
                 # 99 Continue
                 if (H > D*T**2):
                     ExitLoop = True 
@@ -179,20 +179,20 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
             # UPDATE GENERATION FRONT WITH FRONTAL NODE J3
             # 2
             NE = NE+1
-            ME[II+0] = J1
-            ME[II+1] = J2
-            ME[II+2] = J3
+            ME[II+1] = J1
+            ME[II+2] = J2
+            ME[II+3] = J3
             FrontUpdate = True
             # breakpoint()
-            for I in range(NB):
+            for I in range(1,NB+1):
                 # breakpoint()
                 # print('')
                 # print(I,'/',NB-1)
                 # print(MA[I], '-', J3)
                 # print(MB[I], '-', J1)
                 if (MA[I] != J3 or MB[I] != J1): continue
-                MA[I] = MA[NB-1]
-                MB[I] = MB[NB-1]
+                MA[I] = MA[NB]
+                MB[I] = MB[NB]
                 NB = NB-1
                 # GOTO 7
                 # breakpoint()
@@ -202,21 +202,22 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
             # breakpoint()
             if FrontUpdate == True:
                 NB = NB + 1
-                MA[NB-1] = J1
-                MB[NB-1] = J3
+                MA[NB] = J1
+                MB[NB] = J3
             # breakpoint()
-            for I in range(NB): # Position 7, Loop 88
+            # Assume no GOTO 5
+            LoopBreak = True
+            for I in range(1,NB+1): # Position 7, Loop 88
                 # breakpoint()
                 if (MA[I] != J2 or MB[I] != J3): 
-                    if I == NB-1:
-                        LoopBreak = True
-                    break # GOTO 88
+                    continue # GOTO 88
                 if (NB == 1): 
+                    # breakpoint()
                     print('*** Mesh generation succeeded! ***')
-                    return
+                    return(NN,NE,ME)
                 # breakpoint()
-                MA[I] = MA[NB-1]
-                MB[I] = MB[NB-1]
+                MA[I] = MA[NB]
+                MB[I] = MB[NB]
                 NB = NB-1
                 # breakpoint()
                 LoopBreak = False; break  # GOTO 5 ################## 5
@@ -226,33 +227,37 @@ def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
             if LoopBreak == False: continue
             # 88 
             NB = NB+1
-            MA[NB-1] = J3
-            MB[NB-1] = J2
+            MA[NB] = J3
+            MB[NB] = J2
+            LoopBreak = False
+            # print('LOOPBREAK:',LoopBreak)
             # breakpoint()
             continue # GOTO 5 ######################### 5
 
         # INTERIOR NODE NN CREATED, UPDATE GENERATION FRONT WITH INTERIOR NODE NN
         # 3 
-        # breakpoint()
+        
         NN=NN+1
-        X[NN-1]=P
-        Y[NN-1]=Q
+        X[NN]=P
+        Y[NN]=Q
         II=3*NE
         NE=NE+1
-        ME[II+0] = J1
-        ME[II+1] = J2
-        ME[II+2] = NN
+        ME[II+1] = J1
+        ME[II+2] = J2
+        ME[II+3] = NN
         NB=NB+1
-        MA[NB-1]=J1
-        MB[NB-1]=NN
+        MA[NB]=J1
+        MB[NB]=NN
         NB=NB+1
-        MA[NB-1]=NN
-        MB[NB-1]=J2
+        MA[NB]=NN
+        MB[NB]=J2
         # breakpoint()
-        continue # GOTO 5 ################# 5
+        LoopBreak = False; continue # GOTO 5 ################# 5
     # End of Log5 Loop
-    # breakpoint()
+    
     # End of subroutine
+    # breakpoint()
+    # print('Finished without Return')
 
 # CALCULATE THE DISTANCE BETWEEN POINT (X3,Y3) TO LINE SEGMENT (X1,Y1)-(X2,Y2)
 # Done
@@ -306,6 +311,8 @@ def CIRCLE(X1,Y1,X2,Y2,P,Q,XC,YC,RR):
 def CHKINT(J1,J2,J,X1,Y1,X2,Y2,P,Q,NB,MA,MB,X,Y):
     TOL = 0.000001
 
+    Check = True
+
     # Check if there are any intersections between line segment (P,Q)-(X1,Y1)
     # and the non-Delaunay segments MA(i)-MB(i), i=1,NB
     C1 = Q - Y1
@@ -313,7 +320,7 @@ def CHKINT(J1,J2,J,X1,Y1,X2,Y2,P,Q,NB,MA,MB,X,Y):
     C = Q*X1 - P*Y1
     CC = C1*C1 + C2*C2
     TOR = -TOL*CC*CC
-    for I in range(NB): #Loop 11
+    for I in range(1,NB+1): #Loop 11
         IA = MA[I]
         IB = MB[I]
         if (J == IA or J == IB or J1 == IA or J1 == IB): continue # GOTO 11
@@ -325,7 +332,7 @@ def CHKINT(J1,J2,J,X1,Y1,X2,Y2,P,Q,NB,MA,MB,X,Y):
         H1 = YB - YA
         H2 = XB - XA
         H = XA*YB - XB*YA
-        if ((H2*Y1 - H1*X1+H)*(H2*Q - H1*P+H) < TOR): return(False) # RETURN 1 - Returns a fail condition
+        if ((H2*Y1 - H1*X1+H)*(H2*Q - H1*P+H) < TOR): Check = False # RETURN 1 - Returns a fail condition
     # 11 Continue
 
     # Check if there are any intersections between line segment (P,Q)-(X2,Y2)
@@ -347,9 +354,12 @@ def CHKINT(J1,J2,J,X1,Y1,X2,Y2,P,Q,NB,MA,MB,X,Y):
         H1 = YB - YA
         H2 = XB - XA
         H = XA*YB - XB*YA
-        if ((H2*Y2 - H1*X2+H)*(H2*Q - H1*P+H) < TOR): return(False) # RETURN 1 - Returns a fail condition
+        if ((H2*Y2 - H1*X2+H)*(H2*Q - H1*P+H) < TOR): Check = False # RETURN 1 - Returns a fail condition
     # 22 
-    return(True)
+    if Check == False:
+        return(False)
+    else: 
+        return(True)
     # End of Subroutine
 
 
@@ -382,29 +392,29 @@ MB = np.zeros(1000,dtype=int)
 
 # Test problem using square grid
 NN = 4
-X[0] = 0.0; Y[0] = 0.0
-X[1] = 1.0; Y[1] = 0.0
-X[2] = 1.0; Y[2] = 1.0
-X[3] = 0.0; Y[3] = 1.0
+X[1] = 0.0; Y[1] = 0.0
+X[2] = 1.0; Y[2] = 0.0
+X[3] = 1.0; Y[3] = 1.0
+X[4] = 0.0; Y[4] = 1.0
 
 NB = 4
-MA[0] = 0; MB[0] = 1
 MA[1] = 1; MB[1] = 2
 MA[2] = 2; MB[2] = 3
-MA[3] = 3; MB[3] = 0
+MA[3] = 3; MB[3] = 4
+MA[4] = 4; MB[4] = 1
 
 NE = 0
 
-AFT2D(NN,X,Y,NB,MA,MB,NE,ME)
+NN, NE, ME = AFT2D(NN,X,Y,NB,MA,MB,NE,ME)
 
-# print('--- Results: ---')
-# print('Number of Nodes:', NN)
-# for i in range(NN):
-#     print('Node ',i,' Position:',X[i],Y[i])
-# print('')
-# print('Number of Elements:', NE)
-# for i in range(2):
-#     print('Triangle ', i,' Nodes:',ME[i*3 + 1],ME[i*3 + 2],ME[i*3 + 3])
+print('--- Results: ---')
+print('Number of Nodes:', NN)
+for i in range(NN):
+    print('Node ',i,' Position:',X[i],Y[i])
+print('')
+print('Number of Elements:', NE)
+for i in range(NE):
+    print('Triangle ', i,' Nodes:',ME[i*3 + 1],ME[i*3 + 2],ME[i*3 + 3])
 
 
 

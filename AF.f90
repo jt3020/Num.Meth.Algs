@@ -36,6 +36,7 @@ ENDDO
  5 J3=0
  J1=MA(NB)
  J2=MB(NB)
+ Write(*,*) "5", NB, "->", NB-1
  NB=NB-1
  X1=X(J1)
  Y1=Y(J1)
@@ -73,26 +74,28 @@ ENDDO
  DO 11 I=1,NB
  IA=MA(I)
  IB=MB(I)
- Write(*,*) 'DPL #',I,NB,':',DPL(X(IA),Y(IA),X(IB),Y(IB),XC,YC)
- Write(*,*) X(IA),Y(IA)
- Write(*,*) X(IB),Y(IB)
- Write(*,*) XC,YC
+!  Write(*,*) 'DPL #',I,NB,':',DPL(X(IA),Y(IA),X(IB),Y(IB),XC,YC)
+!  Write(*,*) X(IA),Y(IA)
+!  Write(*,*) X(IB),Y(IB)
+!  Write(*,*) XC,YC
  IF (DPL(X(IA),Y(IA),X(IB),Y(IB),XC,YC).GT.RR) GOTO 11
  NS=NS+1
  MS(NS)=IA
  MT(NS)=IB
  11 CONTINUE
 
-Write(*,*) "---" 
-Write(*,*) IA, IB 
-Write(*,*) MA(:8)
-Write(*,*) MB(:8)
-Write(*,*) 
-Write(*,*) MS 
-Write(*,*) MT 
-Write(*,*) NS
-Write(*,*) DPL(X(IA),Y(IA),X(IB),Y(IB),XC,YC)
+! Write(*,*) "---" 
+! Write(*,*) IA, IB 
+! Write(*,*) MA(:8)
+! Write(*,*) MB(:8)
+! Write(*,*) 
+! Write(*,*) MS 
+! Write(*,*) MT 
+! Write(*,*) NS
+! Write(*,*) DPL(X(IA),Y(IA),X(IB),Y(IB),XC,YC)
 ! Checked against python up to here - agrees only for first loop
+
+ 
 
 
 ! DETERMINE CANDIDATE NODES ON THE GENERATION FRONT
@@ -102,7 +105,9 @@ Write(*,*) DPL(X(IA),Y(IA),X(IB),Y(IB),XC,YC)
  Q=Y(J)
  IF ((P-XC)**2+(Q-YC)**2.GT.RR.OR.A*P+B*Q.LT.C) GOTO 22
  CALL CHKINT (J1,J2,J,X1,Y1,X2,Y2,P,Q,NS,MS,MT,X,Y,*22)
+!  Write(*,*) "In", RR
  CALL CIRCLE (X1,Y1,X2,Y2,P,Q,XC,YC,RR)
+!  Write(*,*) "Out", RR
  J3=J
  22 CONTINUE
 
@@ -160,7 +165,7 @@ Write(*,*) DPL(X(IA),Y(IA),X(IB),Y(IB),XC,YC)
  T=1/ALPHA-SQRT(ABS(1/ALPHA**2-1))
 
 ! First loop checked against python
-Write(*,*) "---"
+! Write(*,*) "---"
 ! Write(*,*) XX, YY 
 ! Write(*,*) S1, S2 
 ! Write(*,*) NP 
@@ -177,6 +182,8 @@ Write(*,*) "---"
     S=(11-I)*F1/10
     GAMMA=SQRT(3.0)*S*S*(2-S/F)/(S*S*F+0.75*F)
     IF (GAMMA.LT.BETA) Then 
+
+       
         Write(*,*) "GOTO 1"
         GOTO 1
     EndIf
@@ -245,12 +252,13 @@ Write(*,*) "---"
  IF (MA(I).NE.J3.OR.MB(I).NE.J1) GOTO 77
  MA(I)=MA(NB)
  MB(I)=MB(NB)
+ Write(*,*) "77", NB, "->", NB-1
  NB=NB-1
  GOTO 7
  77 CONTINUE
 
 
-
+Write(*,*) "7", NB, "->", NB+1
  NB=NB+1
  MA(NB)=J1
  MB(NB)=J3
@@ -270,10 +278,13 @@ Write(*,*) "---"
     EndIf
     MA(I)=MA(NB)
     MB(I)=MB(NB)
+    Write(*,*) "88", NB, "->", NB-1
     NB=NB-1
     GOTO 5
     88 CONTINUE
+Write(*,*) "89", NB, "->", NB+1
  NB=NB+1
+ 
  MA(NB)=J3
  MB(NB)=J2
  GOTO 5
