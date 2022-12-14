@@ -65,21 +65,21 @@ for i in range(0,Steps+1):
 # plt.show()
 
 #Elliptic
-# for i in range(0,Steps+1):
-#     for j in range(0,Steps+1):      
-#         x[i][j],y[i][j] = Grid_Elliptic(xi[i][j],eta[i][j])
-#         plt.scatter(x[i][j],y[i][j],color='black',marker='x')
-# plt.xlabel('x')
-# plt.ylabel('y')
-# plt.title('Elliptic')
-# plt.show()
-
-#Horseshoe
 for i in range(0,Steps+1):
     for j in range(0,Steps+1):      
-        x[i][j],y[i][j] = Grid_Horseshoe(xi[i][j],eta[i][j])
+        x[i][j],y[i][j] = Grid_Elliptic(xi[i][j],eta[i][j])
         plt.scatter(x[i][j],y[i][j],color='black',marker='x')
 plt.xlabel('x')
 plt.ylabel('y')
-plt.title('Horseshoe')
+plt.title('Elliptic')
 plt.show()
+
+#Horseshoe
+# for i in range(0,Steps+1):
+#     for j in range(0,Steps+1):      
+#         x[i][j],y[i][j] = Grid_Horseshoe(xi[i][j],eta[i][j])
+#         plt.scatter(x[i][j],y[i][j],color='black',marker='x')
+# plt.xlabel('x')
+# plt.ylabel('y')
+# plt.title('Horseshoe')
+# plt.show()
