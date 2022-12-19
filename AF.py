@@ -318,8 +318,8 @@ NE = 0
 print('External Boundary Types: 1 - Circle, 2 - Triangle, 3 - Square')
 ExternalBoundary = int(input('Enter External Boundary Type:'))
 
-print('Internal Boundary Types: 0 - None, 1 - Circle, 2 - Triangle, 3 - Square')
-InternalBoundary = int(input('Enter Internal Boundary Type:'))
+# print('Internal Boundary Types: 0 - None, 1 - Circle, 2 - Triangle, 3 - Square')
+# InternalBoundary = int(input('Enter Internal Boundary Type:'))
 
 Delta = int(input('Enter Number of Boundaries per side:'))
 
@@ -364,53 +364,53 @@ else:
     for j in range(1,Delta):
         i = i + 1
         X[i] = 0.0 ; Y[i] = (Delta-j)*(1/Delta)
-
+NN = NE
 # plt.plot(X[1:NE+2],Y[1:NE+2],color='black')
 # print('NE:',NE)
 
-# Internal Boundaries
-if InternalBoundary == 1:
-    # Circle
-    NI = Delta
-    j = NE+1
-    for i in range(1,Delta+1):
-        theta = ((i-1)/Delta)*(2*np.pi)
-        X[j] = (0.2 * math.cos(theta) + 0.5)
-        Y[j] = (0.2 * math.sin(theta) + 0.4)
-        j += 1
-elif InternalBoundary == 2:
-    #Triangle
-    NI = Delta*3
-    i = NE
-    for j in range(1,Delta+2):
-        i = i + 1
-        X[i] = 0.4 + (j-1)*(0.2/Delta) ; Y[i] = 0.4
-    for j in range(1,Delta):
-        i = i + 1
-        X[i] = 0.6 - j*((0.1)/Delta) ; Y[i] = 0.4 + j*((0.2)/Delta)
-    for j in range(0,Delta):
-        i = i + 1
-        X[i] = 0.5 - j*((0.1)/Delta) ; Y[i] = 0.6 - j*((0.2)/Delta)
-elif InternalBoundary == 3:
-    #Square
-    NI = Delta*4
-    i = NE
-    for j in range(1,Delta+2):
-        i = i + 1
-        X[i] = 0.4 + (j-1)*(0.2/Delta) ; Y[i] = 0.4
-    for j in range(1,Delta+1):
-        i = i + 1
-        X[i] = 0.6 ; Y[i] = 0.4 + (j)*(0.2/Delta)
-    for j in range(1,Delta+1):
-        i = i + 1
-        X[i] = 0.4 + (Delta-j)*(0.2/Delta) ; Y[i] = 0.6
-    for j in range(1,Delta):
-        i = i + 1
-        X[i] = 0.4 ; Y[i] = 0.4 + (Delta-j)*(0.2/Delta)
-else:
-    # Defaults to none
-    NI = 0
-
+# # Internal Boundaries
+# if InternalBoundary == 1:
+#     # Circle
+#     NI = Delta
+#     j = NE+1
+#     for i in range(1,Delta+1):
+#         theta = ((i-1)/Delta)*(2*np.pi)
+#         X[j] = (0.2 * math.cos(theta) + 0.5)
+#         Y[j] = (0.2 * math.sin(theta) + 0.4)
+#         j += 1
+# elif InternalBoundary == 2:
+#     #Triangle
+#     NI = Delta*3
+#     i = NE
+#     for j in range(1,Delta+2):
+#         i = i + 1
+#         X[i] = 0.4 + (j-1)*(0.2/Delta) ; Y[i] = 0.4
+#     for j in range(1,Delta):
+#         i = i + 1
+#         X[i] = 0.6 - j*((0.1)/Delta) ; Y[i] = 0.4 + j*((0.2)/Delta)
+#     for j in range(0,Delta):
+#         i = i + 1
+#         X[i] = 0.5 - j*((0.1)/Delta) ; Y[i] = 0.6 - j*((0.2)/Delta)
+# elif InternalBoundary == 3:
+#     #Square
+#     NI = Delta*4
+#     i = NE
+#     for j in range(1,Delta+2):
+#         i = i + 1
+#         X[i] = 0.4 + (j-1)*(0.2/Delta) ; Y[i] = 0.4
+#     for j in range(1,Delta+1):
+#         i = i + 1
+#         X[i] = 0.6 ; Y[i] = 0.4 + (j)*(0.2/Delta)
+#     for j in range(1,Delta+1):
+#         i = i + 1
+#         X[i] = 0.4 + (Delta-j)*(0.2/Delta) ; Y[i] = 0.6
+#     for j in range(1,Delta):
+#         i = i + 1
+#         X[i] = 0.4 ; Y[i] = 0.4 + (Delta-j)*(0.2/Delta)
+# else:
+#     # Defaults to none
+#     NI = 0
+# NN = NE + NI
 # print('External')
 # for i in range(1,NE+1):
 #     print('--Node--', i)
@@ -424,7 +424,7 @@ else:
 # plt.show()
 
 # Number of nodes equal to number of external and internal nodes
-NN = NE + NI
+
 
 # External Boundaries
 NB = 0
@@ -464,7 +464,6 @@ for i in range(NN):
 NN, NE, ME = AFT2D(NN,X,Y,NB,MA,MB,NE,ME)
 
 TriNodes = np.zeros((4,2))
-
 
 
 for i in range(NE):
