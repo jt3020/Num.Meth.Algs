@@ -365,6 +365,7 @@ else:
         i = i + 1
         X[i] = 0.0 ; Y[i] = (Delta-j)*(1/Delta)
 NN = NE
+NI = 0
 # plt.plot(X[1:NE+2],Y[1:NE+2],color='black')
 # print('NE:',NE)
 
