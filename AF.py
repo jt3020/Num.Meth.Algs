@@ -441,7 +441,7 @@ for i in range(1,NI+1):
     NB += 1
     j = NE+NI+1 - i
     if i != 1:
-        MA[NB] = NE+NE+2-i
+        MA[NB] = NE+NI+2-i
     else:
         MA[NB] = NE+1
     MB[NB] = NE+NI+1-i
