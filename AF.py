@@ -318,10 +318,17 @@ NE = 0
 print('External Boundary Types: 1 - Circle, 2 - Triangle, 3 - Square')
 ExternalBoundary = int(input('Enter External Boundary Type:'))
 
+DeltaExternal = int(input('Enter Number of Boundaries per side:'))
+
 print('Internal Boundary Types: 0 - None, 1 - Circle, 2 - Triangle, 3 - Square')
 InternalBoundary = int(input('Enter Internal Boundary Type:'))
 
-Delta = int(input('Enter Number of Boundaries per side:'))
+if InternalBoundary != 0:
+    DeltaInternal = int(input('Enter Number of Boundaries per side:'))
+else:
+    DeltaInternal = 0
+
+
 
 # ExternalBoundary = 3
 # InternalBoundary = 3
@@ -330,84 +337,83 @@ Delta = int(input('Enter Number of Boundaries per side:'))
 # External Boundaries
 if ExternalBoundary == 1:
     # Circle
-    NE = Delta
-    for i in range(1,Delta+1):
-        theta = ((i-1)/Delta)*(2*np.pi)
+    NE = DeltaExternal
+    for i in range(1,DeltaExternal+1):
+        theta = ((i-1)/DeltaExternal)*(2*np.pi)
         X[i] = (0.5 * math.cos(theta) + 0.5)
         Y[i] = (0.5 * math.sin(theta) + 0.5)
 elif ExternalBoundary == 2:
     #Triangle
-    NE = Delta*3
+    NE = DeltaExternal*3
     i = 0
-    for j in range(1,Delta+2):
+    for j in range(1,DeltaExternal+2):
         i = i + 1
-        X[i] = (j-1)*(1/Delta) ; Y[i] = 0.0
-    for j in range(1,Delta):
+        X[i] = (j-1)*(1/DeltaExternal) ; Y[i] = 0.0
+    for j in range(1,DeltaExternal):
         i = i + 1
-        X[i] = 1 - j*((0.5)/Delta) ; Y[i] = j*((1)/Delta)
-    for j in range(0,Delta):
+        X[i] = 1 - j*((0.5)/DeltaExternal) ; Y[i] = j*((1)/DeltaExternal)
+    for j in range(0,DeltaExternal):
         i = i + 1
-        X[i] = 0.5 - j*((0.5)/Delta) ; Y[i] = X[i]*2
+        X[i] = 0.5 - j*((0.5)/DeltaExternal) ; Y[i] = X[i]*2
 else:
     #Defaults to Square
-    NE = Delta*4
+    NE = DeltaExternal*4
     i = 0
-    for j in range(1,Delta+2):
+    for j in range(1,DeltaExternal+2):
         i = i + 1
-        X[i] = (j-1)*(1/Delta) ; Y[i] = 0.0
-    for j in range(1,Delta+1):
+        X[i] = (j-1)*(1/DeltaExternal) ; Y[i] = 0.0
+    for j in range(1,DeltaExternal+1):
         i = i + 1
-        X[i] = 1.0 ; Y[i] = (j)*(1/Delta)
-    for j in range(1,Delta+1):
+        X[i] = 1.0 ; Y[i] = (j)*(1/DeltaExternal)
+    for j in range(1,DeltaExternal+1):
         i = i + 1
-        X[i] = (Delta-j)*(1/Delta) ; Y[i] = 1.0
-    for j in range(1,Delta):
+        X[i] = (DeltaExternal-j)*(1/DeltaExternal) ; Y[i] = 1.0
+    for j in range(1,DeltaExternal):
         i = i + 1
-        X[i] = 0.0 ; Y[i] = (Delta-j)*(1/Delta)
+        X[i] = 0.0 ; Y[i] = (DeltaExternal-j)*(1/DeltaExternal)
 NN = NE
-NI = 0
 # plt.plot(X[1:NE+2],Y[1:NE+2],color='black')
 # print('NE:',NE)
 
 # # Internal Boundaries
 if InternalBoundary == 1:
     # Circle
-    NI = Delta
+    NI = DeltaInternal
     j = NE+1
-    for i in range(1,Delta+1):
-        theta = ((i-1)/Delta)*(2*np.pi)
+    for i in range(1,DeltaInternal+1):
+        theta = ((i-1)/DeltaInternal)*(2*np.pi)
         X[j] = (0.2 * math.cos(theta) + 0.5)
         Y[j] = (0.2 * math.sin(theta) + 0.4)
         j += 1
 elif InternalBoundary == 2:
     #Triangle
-    NI = Delta*3
+    NI = DeltaInternal*3
     i = NE
-    for j in range(1,Delta+2):
+    for j in range(1,DeltaInternal+2):
         i = i + 1
-        X[i] = 0.4 + (j-1)*(0.2/Delta) ; Y[i] = 0.4
-    for j in range(1,Delta):
+        X[i] = 0.4 + (j-1)*(0.2/DeltaInternal) ; Y[i] = 0.4
+    for j in range(1,DeltaInternal):
         i = i + 1
-        X[i] = 0.6 - j*((0.1)/Delta) ; Y[i] = 0.4 + j*((0.2)/Delta)
-    for j in range(0,Delta):
+        X[i] = 0.6 - j*((0.1)/DeltaInternal) ; Y[i] = 0.4 + j*((0.2)/DeltaInternal)
+    for j in range(0,DeltaInternal):
         i = i + 1
-        X[i] = 0.5 - j*((0.1)/Delta) ; Y[i] = 0.6 - j*((0.2)/Delta)
+        X[i] = 0.5 - j*((0.1)/DeltaInternal) ; Y[i] = 0.6 - j*((0.2)/DeltaInternal)
 elif InternalBoundary == 3:
     #Square
-    NI = Delta*4
+    NI = DeltaInternal*4
     i = NE
-    for j in range(1,Delta+2):
+    for j in range(1,DeltaInternal+2):
         i = i + 1
-        X[i] = 0.4 + (j-1)*(0.2/Delta) ; Y[i] = 0.4
-    for j in range(1,Delta+1):
+        X[i] = 0.4 + (j-1)*(0.2/DeltaInternal) ; Y[i] = 0.4
+    for j in range(1,DeltaInternal+1):
         i = i + 1
-        X[i] = 0.6 ; Y[i] = 0.4 + (j)*(0.2/Delta)
-    for j in range(1,Delta+1):
+        X[i] = 0.6 ; Y[i] = 0.4 + (j)*(0.2/DeltaInternal)
+    for j in range(1,DeltaInternal+1):
         i = i + 1
-        X[i] = 0.4 + (Delta-j)*(0.2/Delta) ; Y[i] = 0.6
-    for j in range(1,Delta):
+        X[i] = 0.4 + (DeltaInternal-j)*(0.2/DeltaInternal) ; Y[i] = 0.6
+    for j in range(1,DeltaInternal):
         i = i + 1
-        X[i] = 0.4 ; Y[i] = 0.4 + (Delta-j)*(0.2/Delta)
+        X[i] = 0.4 ; Y[i] = 0.4 + (DeltaInternal-j)*(0.2/DeltaInternal)
 else:
     # Defaults to none
     NI = 0
