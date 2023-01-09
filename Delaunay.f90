@@ -1,3 +1,5 @@
+!! FE MESH GEN
+
 ! DELAUNAY TRIANGULATION: INSERTION KERNEL
 ! INPUT: POINT TO BE INSERTED = IN, DELAUNAY TRIANGULATION
 ! {NE,ME,MF}
@@ -13,7 +15,7 @@ SUBROUTINE INSERT(NN,IN,NE,ME,MF,MT,X,Y,Z)
     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
     Integer, dimension(1000) :: ME, MF
     Real*8, dimension(1000) :: X, Y, Z
-    Logical, dimension(1000) :: MT
+    Integer, dimension(1000) :: MT
     DIMENSION MK(1000),ML(1000),M1(1000),M2(1000),MM(3,4)
     DATA MM/2,4,3,1,3,4,1,4,2,1,2,3/
     ! MK(*),ML(*),M1(*),M2(*): WORKING ARRAYS FOR THE CONSTRUCTION OF
@@ -24,7 +26,7 @@ SUBROUTINE INSERT(NN,IN,NE,ME,MF,MT,X,Y,Z)
     YI=Y(IN)
     ZI=Z(IN)
     CALL BASE (NE,ME,MF,X,Y,Z,IN,KB)
-    MT(KB) = .True.
+    MT(KB) = 1
     KK=4*KB-4
     NB=0
     NF=0
@@ -49,7 +51,7 @@ SUBROUTINE INSERT(NN,IN,NE,ME,MF,MT,X,Y,Z)
     K=MK(NF)
     NF=NF-1
     L=MF(4*K-4+J)
-    IF (MT(L).NEQV..False.) GOTO 3
+    IF (MT(L).NE.0) GOTO 3
     LL=4*L-4
     I1=ME(LL+1)
     I2=ME(LL+2)
@@ -57,7 +59,7 @@ SUBROUTINE INSERT(NN,IN,NE,ME,MF,MT,X,Y,Z)
     I4=ME(LL+4)
     CALL SPHERE (I1,I2,I3,I4,X,Y,Z,XX,YY,ZZ,RR)
     IF ((XI-XX)**2+(YI-YY)**2+(ZI-ZZ)**2.LT.RR) THEN
-    MT(L)=.True.
+    MT(L)=1
     DO 11 I=1,4
     KI=MF(LL+I)
     IF (KI.EQ.K) GOTO 11
@@ -99,7 +101,7 @@ SUBROUTINE INSERT(NN,IN,NE,ME,MF,MT,X,Y,Z)
     L=MF(KK+J)
     MF(NE4+4)=L
     NE=NE+1
-    MT(NE)=.False.
+    MT(NE)=0
     IF (L.NE.0) MF(4*L-4+NEIB(L,MF,K))=NE
     MF(KK+J)=NE
     ENDDO
@@ -118,7 +120,7 @@ SUBROUTINE INSERT(NN,IN,NE,ME,MF,MT,X,Y,Z)
     J=II
 
     2 L=MF(4*K-4+J)
-    IF (MT(L).NEQV..False.) THEN
+    IF (MT(L).NE.0) THEN
     J=NODE(L,ME,J4)
     N=NEIB(L,MF,K)
     J4=ME(4*L-4+N)
@@ -171,16 +173,16 @@ SUBROUTINE COMPRESS(NE,ME,MF,MT)
     ! DELETED
     ! ELEMENTS MT(*)
     Integer :: NE, N, I, J, K, NN
-    Integer, dimension(NE) ::  ME, MF
-    Logical, dimension(NE) :: MT
+    Integer, dimension(1000) ::  ME, MF
+    Integer, dimension(1000) :: MT
     N=NE
     DO 11 I=1,NE
-    IF (MT(I).EQV..False.) GOTO 11
+    IF (MT(I).EQ.0) GOTO 11
     II=4*I-4
     N=N+1
     1 N=N-1
     IF (N.LT.I) GOTO 2
-    IF (MT(N).NEQV..False.) GOTO 1
+    IF (MT(N).NE.0) GOTO 1
     NN=N*4-4
     DO J=1,4
     ME(II+J)=ME(NN+J)
@@ -191,8 +193,8 @@ SUBROUTINE COMPRESS(NE,ME,MF,MT)
     MF(4*K-4+L)=I
     ENDIF
     ENDDO
-    MT(I)=.False.
-    MT(N)=.True.
+    MT(I)=0
+    MT(N)=1
     N=N-1
     11 CONTINUE
     2 WRITE (*,*) "ELEMENTS BEFORE AND AFTER COMPRESSION =",NE,N
@@ -295,26 +297,23 @@ Program Main
     ! NEM = MAXIMUM NUMBER OF ELEMENTS ALLOWED IN ARRAYS ME, MF AND MT
     Implicit None
     Integer :: IN, NN, NEM, NE
-    Integer, allocatable, dimension(:) :: ME, MF
-    Real*8, allocatable, dimension(:) :: X, Y, Z
-    Logical, allocatable, dimension(:) :: MT
+    Integer, dimension(1000) :: ME, MF
+    Real*8, dimension(1000) :: X, Y, Z
+    Integer, dimension(1000) :: MT
 
-    NN = 1000
-    NEM = 1000
-    Allocate(ME(NN),MF(NN))
-    Allocate(X(NN),Y(NN),Z(NN))
-    Allocate(MT(NN))
+    NN = 10
+    NEM = 0
 
-    NN = 8
+    ! NN = 8
     ! Test problem using finer square grid
-    X(1) = 0.0; Y(1) = 0.0; Z(1) = 0.0
-    X(2) = 0.5; Y(2) = 0.0; Z(2) = 0.0
-    X(3) = 1.0; Y(3) = 0.0; Z(3) = 0.0
-    X(4) = 1.0; Y(4) = 0.5; Z(4) = 0.0
-    X(5) = 1.0; Y(5) = 1.0; Z(5) = 0.0
-    X(6) = 0.5; Y(6) = 1.0; Z(6) = 0.0
-    X(7) = 0.0; Y(7) = 1.0; Z(7) = 0.0
-    X(8) = 0.0; Y(8) = 0.5; Z(8) = 0.0
+    ! X(1) = 0.0; Y(1) = 0.0; Z(1) = 0.0
+    ! X(2) = 0.5; Y(2) = 0.0; Z(2) = 0.0
+    ! X(3) = 1.0; Y(3) = 0.0; Z(3) = 0.0
+    ! X(4) = 1.0; Y(4) = 0.5; Z(4) = 0.0
+    ! X(5) = 1.0; Y(5) = 1.0; Z(5) = 0.0
+    ! X(6) = 0.5; Y(6) = 1.0; Z(6) = 0.0
+    ! X(7) = 0.0; Y(7) = 1.0; Z(7) = 0.0
+    ! X(8) = 0.0; Y(8) = 0.5; Z(8) = 0.0
     
 
     DO IN=1,NN
