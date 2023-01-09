@@ -4,21 +4,21 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        // {
-        //     "name": "Python: Current File",
-        //     "type": "python",
-        //     "request": "launch",
-        //     "program": "${file}",
-        //     "console": "integratedTerminal",
-        //     "justMyCode": true
-        // },
         {
-            "name": "Fortran: Current File",
-            "type": "cppdbg",
+            "name": "Python: Current File",
+            "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/AF",
-            "cwd": "${workspaceFolder}",
-            "MIMode": "gdb"
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
+        // {
+        //     "name": "Fortran: Current File",
+        //     "type": "cppdbg",
+        //     "request": "launch",
+        //     "program": "${workspaceFolder}/AF",
+        //     "cwd": "${workspaceFolder}",
+        //     "MIMode": "gdb"
+        // }
     ]
 }
