@@ -1,8 +1,8 @@
 import numpy as np
+import math
 import matplotlib.pyplot as plt
 
 # Advancing Front Python Routine
-# Now with python indexing
 def AFT2D(NN,X,Y,NB,MA,MB,NE,ME):
 
     IA = np.zeros(5000,dtype=int)
@@ -300,14 +300,12 @@ def CHKINT(J1,J2,J,X1,Y1,X2,Y2,P,Q,NB,MA,MB,X,Y):
 # XP[:], YP[:], DP[:] - Working arrays containing mid-points and segment lengths - length 5000
 # MS[:], MT[:] - Candidate segments used in element construction - length 1000
 
-# Known dimension
+# Arrays relevant to AF2D
 MS = np.zeros(5000)
 MT = np.zeros(5000)
 XP = np.zeros(5000)
 YP = np.zeros(5000)
 DP = np.zeros(5000)
-
-# Unknown dimension
 X = np.zeros(5000)
 Y = np.zeros(5000)
 ME = np.zeros(5000,dtype=int)
@@ -316,53 +314,165 @@ MB = np.zeros(5000,dtype=int)
 NE = 0
 
 
-# Manually set boundary size for square problem
-Delta = 10
+#User specifies problem - Boundaries and Delta
+print('External Boundary Types: 1 - Circle, 2 - Triangle, 3 - Square')
+ExternalBoundary = int(input('Enter External Boundary Type:'))
+
+DeltaExternal = int(input('Enter Number of Boundaries per side:'))
+
+print('Internal Boundary Types: 0 - None, 1 - Circle, 2 - Triangle, 3 - Square')
+InternalBoundary = int(input('Enter Internal Boundary Type:'))
+
+if InternalBoundary != 0:
+    DeltaInternal = int(input('Enter Number of Boundaries per side:'))
+else:
+    DeltaInternal = 0
 
 
-NN = Delta*4
-i = 0
-for j in range(1,Delta+2):
-    i = i + 1
-    X[i] = (j-1)*(1/Delta) ; Y[i] = 0.0
-for j in range(1,Delta+1):
-    i = i + 1
-    X[i] = 1.0 ; Y[i] = (j)*(1/Delta)
-for j in range(1,Delta+1):
-    i = i + 1
-    X[i] = (Delta-j)*(1/Delta) ; Y[i] = 1.0
-for j in range(1,Delta):
-    i = i + 1
-    X[i] = 0.0 ; Y[i] = (Delta-j)*(1/Delta)
 
-NB = NN 
-for i in range(1,NB+1):
-    MA[i] = i
-    if i != NB:
-        MB[i] = i+1
+# ExternalBoundary = 3
+# InternalBoundary = 3
+# Delta = 2
+
+# External Boundaries
+if ExternalBoundary == 1:
+    # Circle
+    NE = DeltaExternal
+    for i in range(1,DeltaExternal+1):
+        theta = ((i-1)/DeltaExternal)*(2*np.pi)
+        X[i] = (0.5 * math.cos(theta) + 0.5)
+        Y[i] = (0.5 * math.sin(theta) + 0.5)
+elif ExternalBoundary == 2:
+    #Triangle
+    NE = DeltaExternal*3
+    i = 0
+    for j in range(1,DeltaExternal+2):
+        i = i + 1
+        X[i] = (j-1)*(1/DeltaExternal) ; Y[i] = 0.0
+    for j in range(1,DeltaExternal):
+        i = i + 1
+        X[i] = 1 - j*((0.5)/DeltaExternal) ; Y[i] = j*((1)/DeltaExternal)
+    for j in range(0,DeltaExternal):
+        i = i + 1
+        X[i] = 0.5 - j*((0.5)/DeltaExternal) ; Y[i] = X[i]*2
+else:
+    #Defaults to Square
+    NE = DeltaExternal*4
+    i = 0
+    for j in range(1,DeltaExternal+2):
+        i = i + 1
+        X[i] = (j-1)*(1/DeltaExternal) ; Y[i] = 0.0
+    for j in range(1,DeltaExternal+1):
+        i = i + 1
+        X[i] = 1.0 ; Y[i] = (j)*(1/DeltaExternal)
+    for j in range(1,DeltaExternal+1):
+        i = i + 1
+        X[i] = (DeltaExternal-j)*(1/DeltaExternal) ; Y[i] = 1.0
+    for j in range(1,DeltaExternal):
+        i = i + 1
+        X[i] = 0.0 ; Y[i] = (DeltaExternal-j)*(1/DeltaExternal)
+NN = NE
+# plt.plot(X[1:NE+2],Y[1:NE+2],color='black')
+# print('NE:',NE)
+
+# # Internal Boundaries
+if InternalBoundary == 1:
+    # Circle
+    NI = DeltaInternal
+    j = NE+1
+    for i in range(1,DeltaInternal+1):
+        theta = ((i-1)/DeltaInternal)*(2*np.pi)
+        X[j] = (0.2 * math.cos(theta) + 0.5)
+        Y[j] = (0.2 * math.sin(theta) + 0.4)
+        j += 1
+elif InternalBoundary == 2:
+    #Triangle
+    NI = DeltaInternal*3
+    i = NE
+    for j in range(1,DeltaInternal+2):
+        i = i + 1
+        X[i] = 0.4 + (j-1)*(0.2/DeltaInternal) ; Y[i] = 0.4
+    for j in range(1,DeltaInternal):
+        i = i + 1
+        X[i] = 0.6 - j*((0.1)/DeltaInternal) ; Y[i] = 0.4 + j*((0.2)/DeltaInternal)
+    for j in range(0,DeltaInternal):
+        i = i + 1
+        X[i] = 0.5 - j*((0.1)/DeltaInternal) ; Y[i] = 0.6 - j*((0.2)/DeltaInternal)
+elif InternalBoundary == 3:
+    #Square
+    NI = DeltaInternal*4
+    i = NE
+    for j in range(1,DeltaInternal+2):
+        i = i + 1
+        X[i] = 0.4 + (j-1)*(0.2/DeltaInternal) ; Y[i] = 0.4
+    for j in range(1,DeltaInternal+1):
+        i = i + 1
+        X[i] = 0.6 ; Y[i] = 0.4 + (j)*(0.2/DeltaInternal)
+    for j in range(1,DeltaInternal+1):
+        i = i + 1
+        X[i] = 0.4 + (DeltaInternal-j)*(0.2/DeltaInternal) ; Y[i] = 0.6
+    for j in range(1,DeltaInternal):
+        i = i + 1
+        X[i] = 0.4 ; Y[i] = 0.4 + (DeltaInternal-j)*(0.2/DeltaInternal)
+else:
+    # Defaults to none
+    NI = 0
+NN = NE + NI
+# print('External')
+# for i in range(1,NE+1):
+#     print('--Node--', i)
+#     print(X[i],Y[i])
+# print('Internal')
+# for i in range(NE+2,NE+NI+1):
+#     print('--Node--', i)
+#     print(X[i],Y[i])
+
+# plt.plot(X,Y,color='black')
+# plt.show()
+
+# Number of nodes equal to number of external and internal nodes
+
+
+# External Boundaries
+NB = 0
+for i in range(1,NE+1):
+    NB += 1
+    MA[NB] = i
+    if i != NE:
+        MB[NB] = i+1
     else:
-        MB[i] = 1
+        MB[NB] = 1
+# Internal Boundaries
+for i in range(1,NI+1):
+    NB += 1
+    j = NE+NI+1 - i
+    if i != 1:
+        MA[NB] = NE+NI+2-i
+    else:
+        MA[NB] = NE+1
+    MB[NB] = NE+NI+1-i
+# NB = NN 
+# for i in range(1,NB+1):
+#     MA[i] = i
+#     if i != NB:
+#         MB[i] = i+1
+#     else:
+#         MB[i] = 1
 
-# breakpoint()
+# # breakpoint()
 for i in range(NN):
     X[i] = X[i+1]
     Y[i] = Y[i+1]
     MA[i] = MA[i+1]
     MB[i] = MB[i+1]
 
+# for i in range(NN):
+#     print(i,MA[i],MB[i])
+
 NN, NE, ME = AFT2D(NN,X,Y,NB,MA,MB,NE,ME)
 
 TriNodes = np.zeros((4,2))
 
-# print('--- Results: ---')
-# print('Number of Nodes:', NN)
-# for i in range(NN):
-#     print('Node ',i,' Position:',X[i],Y[i])
-# print('')
-# print('Number of Elements:', NE)
-# # print(ME[:8])
-# for i in range(NE):
-#     print('Triangle ', i,' Nodes:',ME[i*3 + 0]-1,ME[i*3 + 1]-1,ME[i*3 + 2]-1)
 
 for i in range(NE):
     TriNodes[0,0] = X[ME[i*3 + 0]-1]
@@ -373,9 +483,19 @@ for i in range(NE):
     TriNodes[2,1] = Y[ME[i*3 + 2]-1]
     TriNodes[3,0] = TriNodes[0,0]
     TriNodes[3,1] = TriNodes[0,1]
-    plt.plot(TriNodes[:,0],TriNodes[:,1],color='black')
+    plt.plot(TriNodes[:,0],TriNodes[:,1],color='black',marker='o')
 
 plt.show()
+
+# # print('--- Results: ---')
+# # print('Number of Nodes:', NN)
+# # for i in range(NN):
+# #     print('Node ',i,' Position:',X[i],Y[i])
+# # print('')
+# # print('Number of Elements:', NE)
+# # # print(ME[:8])
+# # for i in range(NE):
+# #     print('Triangle ', i,' Nodes:',ME[i*3 + 0]-1,ME[i*3 + 1]-1,ME[i*3 + 2]-1)
     
 
 
