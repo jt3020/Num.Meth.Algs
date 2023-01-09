@@ -483,7 +483,7 @@ for i in range(NE):
     TriNodes[2,1] = Y[ME[i*3 + 2]-1]
     TriNodes[3,0] = TriNodes[0,0]
     TriNodes[3,1] = TriNodes[0,1]
-    plt.plot(TriNodes[:,0],TriNodes[:,1],color='black')
+    plt.plot(TriNodes[:,0],TriNodes[:,1],color='black',marker='o')
 
 plt.show()
 
